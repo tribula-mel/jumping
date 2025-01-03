@@ -17,27 +17,28 @@ y_res = DOTS_PER_PIXEL_Y * 192
 
 clock = None
 
-# chuck tile x offset to pygame
+# jumping jack tile x offset to pygame
 def tile_x_convert_to_pygame (offset):
-   # 8 pixels per chuck x offset
+   # 8 pixels per jumping jack x offset
    return DOTS_PER_PIXEL_X * 8 * scale * offset
 
-# chuck tile y offset to pygame
+# jumping jack tile y offset to pygame
 def tile_y_convert_to_pygame (offset):
-   # 8 pixels per chuck y offset
+   # 8 pixels per jumping jack y offset
    # plus difference between top and bottom left
    # plus we need to make a room for the sprite
    return scale * y_res - (DOTS_PER_PIXEL_Y * 8 * scale * (offset + 1)) + 1
 
-# chuck x offset to pygame
+# jumping jack x offset to pygame
 def x_convert_to_pygame (x):
    return DOTS_PER_PIXEL_X * scale * x
 
-# chuck tile y offset to sdl
+# jumping jack tile y offset to sdl
 def y_convert_to_pygame (y):
    # plus difference between top and bottom left
    # plus we need to make a room for the sprite
-   return (scale * y_res - (DOTS_PER_PIXEL_Y * scale * (y + 1)) + 1)
+   #return (scale * y_res - (DOTS_PER_PIXEL_Y * scale * (y + 1)) + 1)
+   return DOTS_PER_PIXEL_Y * scale * y
 
 def set_colour (colour):
    if colour == colour_t.yellow.value:
@@ -76,70 +77,101 @@ def draw_element (screen, element, x, y, colour):
       x = x_backup
       y += DOTS_PER_PIXEL_Y * scale
 
+def draw_line (screen):
+   # there are 8 lines, each 256 dots long
+   # since 8 dots are drawn in one go, we have
+   #    32 line brick elements per line
+   for i in range (0, 8):
+      y = y_convert_to_pygame (24 * i)
+      for j in range (0, 32):
+         x = x_convert_to_pygame (8 * j)
+         draw_element (screen, line_brick, x, y, set_colour (0x02))
+
 def draw_lives (screen):
-   draw_element (screen, life, 0, 180, set_colour (0x03))
+   y = y_convert_to_pygame (176)
+   for i in range (0,6):
+      x = x_convert_to_pygame (8* i)
+      draw_element (screen, life, x, y, set_colour (0x03))
+
+frames = 0
 
 def draw_jack (screen):
-   draw_element (screen, jack_ff, 0, 0, set_colour (0x00))
-   draw_element (screen, jack_lf, 50, 0, set_colour (0x00))
-   draw_element (screen, jack_rf, 100, 0, set_colour (0x00))
-   draw_element (screen, dyno_0, 0, 80, set_colour (0x00))
-   draw_element (screen, dyno_1, 80, 80, set_colour (0x00))
-   draw_element (screen, dyno_2, 160, 80, set_colour (0x03))
-   draw_element (screen, hag_0, 20, 160, set_colour (0x00))
-   draw_element (screen, hag_1, 100, 160, set_colour (0x00))
-   draw_element (screen, ax_0, 0, 240, set_colour (0x00))
-   draw_element (screen, ax_1, 80, 240, set_colour (0x00))
-   draw_element (screen, ax_2, 160, 240, set_colour (0x03))
-   draw_element (screen, ax_3, 240, 240, set_colour (0x03))
-   draw_element (screen, snake_0, 0, 320, set_colour (0x00))
-   draw_element (screen, snake_1, 80, 320, set_colour (0x00))
-   draw_element (screen, snake_2, 160, 320, set_colour (0x03))
-   draw_element (screen, snake_3, 240, 320, set_colour (0x03))
-   draw_element (screen, plane_0, 0, 400, set_colour (0x00))
-   draw_element (screen, plane_1, 80, 400, set_colour (0x00))
-   draw_element (screen, plane_2, 160, 400, set_colour (0x03))
-   draw_element (screen, plane_3, 240, 400, set_colour (0x03))
-   draw_element (screen, spider_0, 320, 80, set_colour (0x00))
-   draw_element (screen, spider_1, 400, 80, set_colour (0x00))
-   draw_element (screen, spider_2, 480, 80, set_colour (0x03))
-   draw_element (screen, spider_3, 560, 80, set_colour (0x03))
-   draw_element (screen, train_0, 0, 480, set_colour (0x00))
-   draw_element (screen, train_1, 80, 480, set_colour (0x00))
-   draw_element (screen, train_2, 160, 480, set_colour (0x03))
-   draw_element (screen, train_3, 240, 480, set_colour (0x03))
-   draw_element (screen, ghost_0, 320, 0, set_colour (0x00))
-   draw_element (screen, ghost_1, 400, 0, set_colour (0x00))
-   draw_element (screen, ghost_2, 480, 0, set_colour (0x03))
-   draw_element (screen, ghost_3, 560, 0, set_colour (0x03))
-   draw_element (screen, gunner_0, 320, 240, set_colour (0x00))
-   draw_element (screen, gunner_1, 400, 240, set_colour (0x00))
-   draw_element (screen, gunner_2, 480, 240, set_colour (0x03))
-   draw_element (screen, gunner_3, 560, 240, set_colour (0x03))
-   draw_element (screen, bus_0, 320, 160, set_colour (0x03))
-   draw_element (screen, bus_1, 400, 160, set_colour (0x03))
-   draw_element (screen, bus_2, 480, 160, set_colour (0x03))
-   draw_element (screen, bus_3, 560, 160, set_colour (0x03))
-   draw_element (screen, jack_lrls, 320, 320, set_colour (0x00))
-   draw_element (screen, jack_lrlp, 400, 320, set_colour (0x00))
-   draw_element (screen, jack_lrlc, 480, 320, set_colour (0x00))
-   draw_element (screen, jack_lrlws, 560, 320, set_colour (0x00))
-   draw_element (screen, jack_rrls, 320, 400, set_colour (0x00))
-   draw_element (screen, jack_rrlp, 400, 400, set_colour (0x00))
-   draw_element (screen, jack_rrlc, 480, 400, set_colour (0x00))
-   draw_element (screen, jack_rrlws, 560, 400, set_colour (0x00))
-   draw_element (screen, jack_f0, 320, 480, set_colour (0x00))
-   draw_element (screen, jack_f1, 400, 480, set_colour (0x00))
-   draw_element (screen, jack_f2, 480, 480, set_colour (0x00))
-   draw_element (screen, jack_f3, 560, 480, set_colour (0x00))
-   draw_element (screen, jack_f4, 640, 480, set_colour (0x00))
+   global frames
+
+   x = x_convert_to_pygame (96)
+   y = y_convert_to_pygame (176)
+   if frames >= 120:
+      frames = 0
+   if frames < 30:
+      draw_element (screen, jack_ff, x, y, set_colour (0x00))
+   elif frames < 60:
+      draw_element (screen, jack_lf, x, y, set_colour (0x00))
+   elif frames < 90:
+      draw_element (screen, jack_ff, x, y, set_colour (0x00))
+   elif frames < 120:
+      draw_element (screen, jack_rf, x, y, set_colour (0x00))
+   frames += 1
+   # draw_element (screen, jack_lf, 50, 0, set_colour (0x00))
+   # draw_element (screen, jack_rf, 100, 0, set_colour (0x00))
+   # draw_element (screen, dyno_0, 0, 80, set_colour (0x00))
+   # draw_element (screen, dyno_1, 80, 80, set_colour (0x00))
+   # draw_element (screen, dyno_2, 160, 80, set_colour (0x03))
+   # draw_element (screen, hag_0, 20, 160, set_colour (0x00))
+   # draw_element (screen, hag_1, 100, 160, set_colour (0x00))
+   # draw_element (screen, ax_0, 0, 240, set_colour (0x00))
+   # draw_element (screen, ax_1, 80, 240, set_colour (0x00))
+   # draw_element (screen, ax_2, 160, 240, set_colour (0x03))
+   # draw_element (screen, ax_3, 240, 240, set_colour (0x03))
+   # draw_element (screen, snake_0, 0, 320, set_colour (0x00))
+   # draw_element (screen, snake_1, 80, 320, set_colour (0x00))
+   # draw_element (screen, snake_2, 160, 320, set_colour (0x03))
+   # draw_element (screen, snake_3, 240, 320, set_colour (0x03))
+   # draw_element (screen, plane_0, 0, 400, set_colour (0x00))
+   # draw_element (screen, plane_1, 80, 400, set_colour (0x00))
+   # draw_element (screen, plane_2, 160, 400, set_colour (0x03))
+   # draw_element (screen, plane_3, 240, 400, set_colour (0x03))
+   # draw_element (screen, spider_0, 320, 80, set_colour (0x00))
+   # draw_element (screen, spider_1, 400, 80, set_colour (0x00))
+   # draw_element (screen, spider_2, 480, 80, set_colour (0x03))
+   # draw_element (screen, spider_3, 560, 80, set_colour (0x03))
+   # draw_element (screen, train_0, 0, 480, set_colour (0x00))
+   # draw_element (screen, train_1, 80, 480, set_colour (0x00))
+   # draw_element (screen, train_2, 160, 480, set_colour (0x03))
+   # draw_element (screen, train_3, 240, 480, set_colour (0x03))
+   # draw_element (screen, ghost_0, 320, 0, set_colour (0x00))
+   # draw_element (screen, ghost_1, 400, 0, set_colour (0x00))
+   # draw_element (screen, ghost_2, 480, 0, set_colour (0x03))
+   # draw_element (screen, ghost_3, 560, 0, set_colour (0x03))
+   # draw_element (screen, gunner_0, 320, 240, set_colour (0x00))
+   # draw_element (screen, gunner_1, 400, 240, set_colour (0x00))
+   # draw_element (screen, gunner_2, 480, 240, set_colour (0x03))
+   # draw_element (screen, gunner_3, 560, 240, set_colour (0x03))
+   # draw_element (screen, bus_0, 320, 160, set_colour (0x03))
+   # draw_element (screen, bus_1, 400, 160, set_colour (0x03))
+   # draw_element (screen, bus_2, 480, 160, set_colour (0x03))
+   # draw_element (screen, bus_3, 560, 160, set_colour (0x03))
+   # draw_element (screen, jack_lrls, 320, 320, set_colour (0x00))
+   # draw_element (screen, jack_lrlp, 400, 320, set_colour (0x00))
+   # draw_element (screen, jack_lrlc, 480, 320, set_colour (0x00))
+   # draw_element (screen, jack_lrlws, 560, 320, set_colour (0x00))
+   # draw_element (screen, jack_rrls, 320, 400, set_colour (0x00))
+   # draw_element (screen, jack_rrlp, 400, 400, set_colour (0x00))
+   # draw_element (screen, jack_rrlc, 480, 400, set_colour (0x00))
+   # draw_element (screen, jack_rrlws, 560, 400, set_colour (0x00))
+   # draw_element (screen, jack_f0, 320, 480, set_colour (0x00))
+   # draw_element (screen, jack_f1, 400, 480, set_colour (0x00))
+   # draw_element (screen, jack_f2, 480, 480, set_colour (0x00))
+   # draw_element (screen, jack_f3, 560, 480, set_colour (0x00))
+   # draw_element (screen, jack_f4, 640, 480, set_colour (0x00))
+   # draw_element (screen, line_brick, 640, 560, set_colour (0x02))
 
 def title_loop (screen):
-   screen.fill ((255, 255, 255))
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
                     [pygame.K_ESCAPE, pygame.K_s]):
-      draw_jack (screen)
+      screen.fill ((255, 255, 255))
+      draw_line (screen)
       draw_lives (screen)
+      draw_jack (screen)
       pygame.display.flip ()
       clock.tick (30) # limits FPS
 

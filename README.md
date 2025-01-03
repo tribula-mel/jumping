@@ -14,8 +14,8 @@ Windows. Here come the Windows instructions by him.
 
 3. Pick a directory where you want to clone the project. Open a command prompt
    to that location and run:
-   git clone “https://github.com/tribula-mel/chuck.git”
+   git clone “https://github.com/tribula-mel/jumping.git”
 
-4. In the command prompt cd into chuck directory and then into py directory
+4. In the command prompt cd into 'jumping' directory and then into py directory
 5. To run the game:
    python main.py

@@ -1531,3 +1531,9 @@ jack_f4 = sprite_t (0x02, 0x20, 0x00,
      # standing facing forward
      # crouching
      # stars sequence
+
+line_brick = sprite_t (0x01, 0x02, 0x00,
+      [
+         0xff,
+         0xff,
+      ])
