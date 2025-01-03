@@ -80,10 +80,9 @@ def draw_lives (screen):
    draw_element (screen, life, 0, 180, set_colour (0x03))
 
 def draw_jack (screen):
-   draw_element (screen, jack_0, 0, 0, set_colour (0x00))
-   draw_element (screen, jack_1, 50, 0, set_colour (0x00))
-   draw_element (screen, jack_2, 100, 0, set_colour (0x00))
-   draw_element (screen, jack_3, 150, 0, set_colour (0x00))
+   draw_element (screen, jack_ff, 0, 0, set_colour (0x00))
+   draw_element (screen, jack_lf, 50, 0, set_colour (0x00))
+   draw_element (screen, jack_rf, 100, 0, set_colour (0x00))
    draw_element (screen, dyno_0, 0, 80, set_colour (0x00))
    draw_element (screen, dyno_1, 80, 80, set_colour (0x00))
    draw_element (screen, dyno_2, 160, 80, set_colour (0x03))
@@ -121,6 +120,19 @@ def draw_jack (screen):
    draw_element (screen, bus_1, 400, 160, set_colour (0x03))
    draw_element (screen, bus_2, 480, 160, set_colour (0x03))
    draw_element (screen, bus_3, 560, 160, set_colour (0x03))
+   draw_element (screen, jack_lrls, 320, 320, set_colour (0x00))
+   draw_element (screen, jack_lrlp, 400, 320, set_colour (0x00))
+   draw_element (screen, jack_lrlc, 480, 320, set_colour (0x00))
+   draw_element (screen, jack_lrlws, 560, 320, set_colour (0x00))
+   draw_element (screen, jack_rrls, 320, 400, set_colour (0x00))
+   draw_element (screen, jack_rrlp, 400, 400, set_colour (0x00))
+   draw_element (screen, jack_rrlc, 480, 400, set_colour (0x00))
+   draw_element (screen, jack_rrlws, 560, 400, set_colour (0x00))
+   draw_element (screen, jack_f0, 320, 480, set_colour (0x00))
+   draw_element (screen, jack_f1, 400, 480, set_colour (0x00))
+   draw_element (screen, jack_f2, 480, 480, set_colour (0x00))
+   draw_element (screen, jack_f3, 560, 480, set_colour (0x00))
+   draw_element (screen, jack_f4, 640, 480, set_colour (0x00))
 
 def title_loop (screen):
    screen.fill ((255, 255, 255))
