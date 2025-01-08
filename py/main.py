@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import pygame
+import random
 
 from game_types import sprite_t
 from game_types import colour_t
@@ -16,6 +17,19 @@ x_res = DOTS_PER_PIXEL_X * 256
 y_res = DOTS_PER_PIXEL_Y * 192
 
 clock = None
+
+# do not cross the line :) , but embed gaps within
+# there are eight lines with maximum of eight gaps
+# two for starters; the eight lines are internaly
+#    presented as one line; since we are moving half
+#    a character this means 32*2*8 = 512 positions
+#    within the line, which is 32*8*8 spectrum dots
+#    long (2048)
+# each gap is three speccy chars long
+# holders for the gaps; each gap is presented with a single
+#    integer (random starting value) within [0..511] range
+left_up_gap = []
+right_down_gap = []
 
 # jumping jack tile x offset to pygame
 def tile_x_convert_to_pygame (offset):
@@ -89,12 +103,11 @@ def draw_line (screen):
 
 def draw_lives (screen):
    y = y_convert_to_pygame (176)
-   for i in range (0,6):
+   for i in range (0, 6):
       x = x_convert_to_pygame (8* i)
       draw_element (screen, life, x, y, set_colour (0x03))
 
 frames = 0
-
 def draw_jack (screen):
    global frames
 
@@ -166,13 +179,16 @@ def draw_jack (screen):
    # draw_element (screen, line_brick, 640, 560, set_colour (0x02))
 
 def title_loop (screen):
+   init_gaps ()
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
                     [pygame.K_ESCAPE, pygame.K_s]):
       screen.fill ((255, 255, 255))
       draw_line (screen)
       draw_lives (screen)
+      draw_gaps (screen)
       draw_jack (screen)
       pygame.display.flip ()
+      move_gaps ()
       clock.tick (30) # limits FPS
 
 def do_events (events, keys):
@@ -216,6 +232,58 @@ def game_loop (screen):
       screen.fill ((0,0,0))
       pygame.display.flip ()
       clock.tick (35) # limits FPS
+
+def init_gaps ():
+   global left_up_gap
+   global right_down_gap
+
+   left_up_gap.append (random.randint (0, 511))
+   right_down_gap.append (random.randint (0, 511))
+
+def gap_pos_to_speccy_x_y (position):
+   # each line has 64 positions, four dots per position
+   position = position % 512
+   x = (position % 64) * 4
+   y = int (position / 64) * 24
+   return (x, y)
+
+def move_gaps ():
+   global left_up_gap
+   global right_down_gap
+
+   for i in range (0, len (left_up_gap)):
+      if left_up_gap[i] == 0:
+         left_up_gap[i] = 511
+      else:
+         left_up_gap[i] -= 1
+   for i in range (0, len (right_down_gap)):
+      if right_down_gap[i] == 511:
+         right_down_gap[i] = 0
+      else:
+         right_down_gap[i] += 1
+
+def draw_gaps (screen):
+   global left_up_gap
+   global right_down_gap
+
+   for i in range (0, len (left_up_gap)):
+      pos = left_up_gap[i]
+      # every gap is six half speccy characters wide
+      for j in range (0, 3):
+         pos += j
+         x, y = gap_pos_to_speccy_x_y (pos)
+         pygame_x = x_convert_to_pygame (x)
+         pygame_y = y_convert_to_pygame (y)
+         draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+   for i in range (0, len (right_down_gap)):
+      pos = right_down_gap[i]
+      # every gap is six half speccy characters wide
+      for j in range (0, 3):
+         pos += j
+         x, y = gap_pos_to_speccy_x_y (pos)
+         pygame_x = x_convert_to_pygame (x)
+         pygame_y = y_convert_to_pygame (y)
+         draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
 
 def main ():
    global clock
