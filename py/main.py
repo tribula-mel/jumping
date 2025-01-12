@@ -237,14 +237,24 @@ def init_gaps ():
    global left_up_gap
    global right_down_gap
 
-   left_up_gap.append (random.randint (0, 511))
-   right_down_gap.append (random.randint (0, 511))
+   # mask is common for both movements; we want the initial position
+   #    to be alligned on the character level
+   mask = -1
+   mask ^= 0x7
+   # both gaps are starting from the same position
+   # the gaps will be moving from [0..2023], in four dots steps,
+   #    last three positions being needed for the full gap length
+   # line is 2048 [0..2047] dots long (32 chars * 8 dots/char * 8 lines)
+   # both gaps have origin in the left corner
+   init = random.randint (0, 2023)
+   init &= mask
+   left_up_gap.append ([init, init+8, init+16])
+   right_down_gap.append ([init, init+8, init+16])
 
 def gap_pos_to_speccy_x_y (position):
-   # each line has 64 positions, four dots per position
-   position = position % 512
-   x = (position % 64) * 4
-   y = int (position / 64) * 24
+   # each line has 256 positions, four dots per position
+   x = position % 256
+   y = int (position / 256) * 24
    return (x, y)
 
 def move_gaps ():
@@ -252,38 +262,52 @@ def move_gaps ():
    global right_down_gap
 
    for i in range (0, len (left_up_gap)):
-      if left_up_gap[i] == 0:
-         left_up_gap[i] = 511
-      else:
-         left_up_gap[i] -= 1
+      x, y, z = left_up_gap[i]
+      x = (x - 8) & 0x7ff
+      y = (y - 8) & 0x7ff
+      z = (z - 8) & 0x7ff
+      left_up_gap[i] = [x, y, z]
    for i in range (0, len (right_down_gap)):
-      if right_down_gap[i] == 511:
-         right_down_gap[i] = 0
-      else:
-         right_down_gap[i] += 1
+      x, y, z = right_down_gap[i]
+      x = (x + 8) % 2048
+      y = (y + 8) % 2048
+      z = (z + 8) % 2048
+      right_down_gap[i] = [x, y, z]
 
 def draw_gaps (screen):
    global left_up_gap
    global right_down_gap
 
    for i in range (0, len (left_up_gap)):
-      pos = left_up_gap[i]
-      # every gap is six half speccy characters wide
-      for j in range (0, 3):
-         pos += j
-         x, y = gap_pos_to_speccy_x_y (pos)
-         pygame_x = x_convert_to_pygame (x)
-         pygame_y = y_convert_to_pygame (y)
-         draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      pos_1, pos_2, pos_3 = left_up_gap[i]
+      # every gap is three speccy characters wide
+      x, y = gap_pos_to_speccy_x_y (pos_1)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      x, y = gap_pos_to_speccy_x_y (pos_2)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      x, y = gap_pos_to_speccy_x_y (pos_3)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
    for i in range (0, len (right_down_gap)):
-      pos = right_down_gap[i]
-      # every gap is six half speccy characters wide
-      for j in range (0, 3):
-         pos += j
-         x, y = gap_pos_to_speccy_x_y (pos)
-         pygame_x = x_convert_to_pygame (x)
-         pygame_y = y_convert_to_pygame (y)
-         draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      pos_1, pos_2, pos_3 = right_down_gap[i]
+      # every gap is three speccy characters wide
+      x, y = gap_pos_to_speccy_x_y (pos_1)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      x, y = gap_pos_to_speccy_x_y (pos_2)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      x, y = gap_pos_to_speccy_x_y (pos_3)
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
 
 def main ():
    global clock
