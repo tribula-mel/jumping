@@ -17,6 +17,7 @@ x_res = DOTS_PER_PIXEL_X * 256
 y_res = DOTS_PER_PIXEL_Y * 192
 
 clock = None
+pause = False
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
@@ -179,9 +180,11 @@ def draw_jack (screen):
    # draw_element (screen, line_brick, 640, 560, set_colour (0x02))
 
 def title_loop (screen):
+   global pause
+
    init_gaps ()
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
-                    [pygame.K_ESCAPE, pygame.K_s, pygame.K_g]):
+                    [pygame.K_ESCAPE, pygame.K_s, pygame.K_g, pygame.K_p]):
       screen.fill ((255, 255, 255))
       draw_line (screen)
       draw_lives (screen)
@@ -192,6 +195,8 @@ def title_loop (screen):
       clock.tick (30) # limits FPS
 
 def do_events (events, keys):
+   global pause
+
    for event in pygame.event.get ():
       for et in events:
          if event.type == pygame.QUIT and et == pygame.QUIT:
@@ -208,6 +213,16 @@ def do_events (events, keys):
                   return False
                if event.key == pygame.K_g and ke == pygame.K_g:
                   add_gap ()
+               if event.key == pygame.K_p and ke == pygame.K_p:
+                  if pause == False:
+                     pause = True
+                  else:
+                     pause = False
+                  while pause:
+                     running = do_events ([pygame.QUIT, pygame.KEYDOWN],
+                                          [pygame.K_p])
+                     if running == False:
+                        return
    return True
 
 def game_keys ():
