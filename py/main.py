@@ -181,7 +181,7 @@ def draw_jack (screen):
 def title_loop (screen):
    init_gaps ()
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
-                    [pygame.K_ESCAPE, pygame.K_s]):
+                    [pygame.K_ESCAPE, pygame.K_s, pygame.K_g]):
       screen.fill ((255, 255, 255))
       draw_line (screen)
       draw_lives (screen)
@@ -206,6 +206,8 @@ def do_events (events, keys):
                   print ('n')
                if event.key == pygame.K_s and ke == pygame.K_s:
                   return False
+               if event.key == pygame.K_g and ke == pygame.K_g:
+                  add_gap ()
    return True
 
 def game_keys ():
@@ -250,6 +252,19 @@ def init_gaps ():
    init &= mask
    left_up_gap.append ([init, init+8, init+16])
    right_down_gap.append ([init, init+8, init+16])
+
+def add_gap ():
+   global left_up_gap
+   global right_down_gap
+
+   mask = -1
+   mask ^= 0x7
+   init = random.randint (0, 2023)
+   init &= mask
+   if (len (right_down_gap) < 4):
+      right_down_gap.append ([init, init+8, init+16])
+   elif (len (left_up_gap) < 4):
+      left_up_gap.append ([init, init+8, init+16])
 
 def gap_pos_to_speccy_x_y (position):
    # each line has 256 positions, four dots per position
