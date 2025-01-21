@@ -16,3 +16,13 @@ class sprite_t:
       self.height = height
       self.colour = colour
       self.sprite = sprite
+
+class hazard_t:
+   def __init__ (self, index, colour, pos):
+      # index into the hazards list
+      self.index  = index
+      self.colour = colour
+      # index into the particular hazard sprite set
+      self.sprite_idx = 0
+      # speccy graphical coordinates
+      self.pos    = pos

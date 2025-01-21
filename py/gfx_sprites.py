@@ -752,6 +752,19 @@ bus_3 = sprite_t (0x03, 0x10, 0x00,
          0x02, 0x81, 0x40,
       ])
 
+hazards = [
+      (dyno_0, dyno_1, dyno_2),
+      (hag_0, hag_1),
+      (ax_0, ax_1, ax_2, ax_3),
+      (snake_0, snake_1, snake_2, snake_3),
+      (spider_0, spider_1, spider_2, spider_3),
+      (train_0, train_1, train_2, train_3),
+      (ghost_0, ghost_1, ghost_2, ghost_3),
+      (gunner_0, gunner_1, gunner_2, gunner_3),
+      (plane_0, plane_1, plane_2, plane_3),
+      (bus_0, bus_1, bus_2, bus_3),
+]
+
 jack_ff = sprite_t (0x02, 0x10, 0x00,
       [
          0x01, 0xc0,

@@ -3,8 +3,8 @@
 import pygame
 import random
 
-from game_types import sprite_t
 from game_types import colour_t
+from game_types import hazard_t
 from gfx_sprites import *
 
 scale = 3
@@ -31,6 +31,68 @@ pause = False
 #    integer (random starting value) within [0..511] range
 left_up_gap = []
 right_down_gap = []
+
+# index for hazard_sprites list [1..10]
+next_hazard = 0
+# index for hazard_colour list [1..8]
+next_colour = 0
+# possible positions [1..256]
+next_position = 0
+# hazard list; first level has no hazards, level 21 has 20 hazards
+hazard_list = []
+
+# linear pseudo random generator in range [1..f]
+def lfsr (inp):
+   newbit = (((inp >> 3) ^ (inp >> 2)) & 1)
+   return ((inp << 1) | newbit) & 0x0f
+
+# linear pseudo random generator in range [1..ff]
+def lfsr_ff (inp):
+   newbit = (((inp >> 6) ^ (inp >> 5)) & 1)
+   return ((inp << 1) | newbit) & 0xff
+
+def init_hazards ():
+   global next_hazard
+   global next_colour
+   global next_position
+
+   next_hazard = random.randint (1, 10)
+   next_colour = random.randint (1, 6)
+   next_position = random.randint (1, 255)
+
+def get_index ():
+   global next_hazard
+
+   next_hazard = lfsr (next_hazard)
+   while next_hazard > 10:
+      next_hazard = lfsr (next_hazard)
+   return next_hazard
+
+def get_colour ():
+   global next_colour
+
+   next_colour = lfsr (next_colour)
+   while next_colour > 6:
+      next_colour = lfsr (next_colour)
+   return next_colour
+
+# returns random (x, y) tupple in speccy graphical system
+def get_position ():
+   global next_position
+
+   next_position = lfsr_ff (next_position)
+   if next_position > 224:
+      (x, y) = get_position ()
+      return (x, y)
+   # speccy has 32x24 big console
+   # a hazard is moving on a line 32x7 chars long
+   #    one char at a time to the left
+   x = (next_position - 1) % 32
+   if x > 29:
+      (x, y) = get_position ()
+      return (x, y)
+   y = int ((next_position - 1) / 32)
+   return (8*x, 24*y + 8)
 
 # jumping jack tile x offset to pygame
 def tile_x_convert_to_pygame (offset):
@@ -125,70 +187,19 @@ def draw_jack (screen):
    elif frames < 120:
       draw_element (screen, jack_rf, x, y, set_colour (0x00))
    frames += 1
-   # draw_element (screen, jack_lf, 50, 0, set_colour (0x00))
-   # draw_element (screen, jack_rf, 100, 0, set_colour (0x00))
-   # draw_element (screen, dyno_0, 0, 80, set_colour (0x00))
-   # draw_element (screen, dyno_1, 80, 80, set_colour (0x00))
-   # draw_element (screen, dyno_2, 160, 80, set_colour (0x03))
-   # draw_element (screen, hag_0, 20, 160, set_colour (0x00))
-   # draw_element (screen, hag_1, 100, 160, set_colour (0x00))
-   # draw_element (screen, ax_0, 0, 240, set_colour (0x00))
-   # draw_element (screen, ax_1, 80, 240, set_colour (0x00))
-   # draw_element (screen, ax_2, 160, 240, set_colour (0x03))
-   # draw_element (screen, ax_3, 240, 240, set_colour (0x03))
-   # draw_element (screen, snake_0, 0, 320, set_colour (0x00))
-   # draw_element (screen, snake_1, 80, 320, set_colour (0x00))
-   # draw_element (screen, snake_2, 160, 320, set_colour (0x03))
-   # draw_element (screen, snake_3, 240, 320, set_colour (0x03))
-   # draw_element (screen, plane_0, 0, 400, set_colour (0x00))
-   # draw_element (screen, plane_1, 80, 400, set_colour (0x00))
-   # draw_element (screen, plane_2, 160, 400, set_colour (0x03))
-   # draw_element (screen, plane_3, 240, 400, set_colour (0x03))
-   # draw_element (screen, spider_0, 320, 80, set_colour (0x00))
-   # draw_element (screen, spider_1, 400, 80, set_colour (0x00))
-   # draw_element (screen, spider_2, 480, 80, set_colour (0x03))
-   # draw_element (screen, spider_3, 560, 80, set_colour (0x03))
-   # draw_element (screen, train_0, 0, 480, set_colour (0x00))
-   # draw_element (screen, train_1, 80, 480, set_colour (0x00))
-   # draw_element (screen, train_2, 160, 480, set_colour (0x03))
-   # draw_element (screen, train_3, 240, 480, set_colour (0x03))
-   # draw_element (screen, ghost_0, 320, 0, set_colour (0x00))
-   # draw_element (screen, ghost_1, 400, 0, set_colour (0x00))
-   # draw_element (screen, ghost_2, 480, 0, set_colour (0x03))
-   # draw_element (screen, ghost_3, 560, 0, set_colour (0x03))
-   # draw_element (screen, gunner_0, 320, 240, set_colour (0x00))
-   # draw_element (screen, gunner_1, 400, 240, set_colour (0x00))
-   # draw_element (screen, gunner_2, 480, 240, set_colour (0x03))
-   # draw_element (screen, gunner_3, 560, 240, set_colour (0x03))
-   # draw_element (screen, bus_0, 320, 160, set_colour (0x03))
-   # draw_element (screen, bus_1, 400, 160, set_colour (0x03))
-   # draw_element (screen, bus_2, 480, 160, set_colour (0x03))
-   # draw_element (screen, bus_3, 560, 160, set_colour (0x03))
-   # draw_element (screen, jack_lrls, 320, 320, set_colour (0x00))
-   # draw_element (screen, jack_lrlp, 400, 320, set_colour (0x00))
-   # draw_element (screen, jack_lrlc, 480, 320, set_colour (0x00))
-   # draw_element (screen, jack_lrlws, 560, 320, set_colour (0x00))
-   # draw_element (screen, jack_rrls, 320, 400, set_colour (0x00))
-   # draw_element (screen, jack_rrlp, 400, 400, set_colour (0x00))
-   # draw_element (screen, jack_rrlc, 480, 400, set_colour (0x00))
-   # draw_element (screen, jack_rrlws, 560, 400, set_colour (0x00))
-   # draw_element (screen, jack_f0, 320, 480, set_colour (0x00))
-   # draw_element (screen, jack_f1, 400, 480, set_colour (0x00))
-   # draw_element (screen, jack_f2, 480, 480, set_colour (0x00))
-   # draw_element (screen, jack_f3, 560, 480, set_colour (0x00))
-   # draw_element (screen, jack_f4, 640, 480, set_colour (0x00))
-   # draw_element (screen, line_brick, 640, 560, set_colour (0x02))
 
 def title_loop (screen):
    global pause
 
    init_gaps ()
+   init_hazards ()
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
-                    [pygame.K_ESCAPE, pygame.K_s, pygame.K_g, pygame.K_p]):
+         [pygame.K_ESCAPE, pygame.K_s, pygame.K_g, pygame.K_p, pygame.K_h]):
       screen.fill ((255, 255, 255))
       draw_line (screen)
       draw_lives (screen)
       draw_gaps (screen)
+      draw_hazards (screen)
       draw_jack (screen)
       pygame.display.flip ()
       move_gaps ()
@@ -223,6 +234,8 @@ def do_events (events, keys):
                                           [pygame.K_p])
                      if running == False:
                         return
+               if event.key == pygame.K_h and ke == pygame.K_h:
+                  add_hazard ()
    return True
 
 def game_keys ():
@@ -338,6 +351,34 @@ def draw_gaps (screen):
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
       draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+
+def add_hazard ():
+   global hazard_list
+
+   if len (hazard_list) < 20:
+      # get hazard sprite (random)
+      i = get_index ()
+      # get hazard colour (random)
+      c = get_colour ()
+      p = get_position ()
+      h = hazard_t (i - 1, c, p)
+      # print ('hazard index ', i - 1)
+      # print ('hazard colour ', c)
+      # print ('hazard position ', p)
+      hazard_list.append (h)
+
+def draw_hazards (screen):
+   global hazard_list
+   # these are sprites
+   global hazards
+
+   for i in range (0, len (hazard_list)):
+      h = hazard_list[i]
+      sprite = hazards[h.index][h.sprite_idx]
+      x, y = h.pos
+      pygame_x = x_convert_to_pygame (x)
+      pygame_y = y_convert_to_pygame (y)
+      draw_element (screen, sprite, pygame_x, pygame_y, set_colour (h.colour))
 
 def main ():
    global clock
