@@ -36,7 +36,8 @@ right_down_gap = []
 next_hazard = 0
 # index for hazard_colour list [1..8]
 next_colour = 0
-# possible positions [1..256]
+# possible positions [1..31]
+#    divided in 8 chars chunks
 next_position = 0
 # hazard list; first level has no hazards, level 21 has 20 hazards
 hazard_list = []
@@ -46,10 +47,10 @@ def lfsr (inp):
    newbit = (((inp >> 3) ^ (inp >> 2)) & 1)
    return ((inp << 1) | newbit) & 0x0f
 
-# linear pseudo random generator in range [1..ff]
-def lfsr_ff (inp):
-   newbit = (((inp >> 6) ^ (inp >> 5)) & 1)
-   return ((inp << 1) | newbit) & 0xff
+# linear pseudo random generator in range [1..1f]
+def lfsr_1f (inp):
+   newbit = (((inp >> 4) ^ (inp >> 2)) & 1)
+   return ((inp << 1) | newbit) & 0x1f
 
 def init_hazards ():
    global next_hazard
@@ -58,7 +59,7 @@ def init_hazards ():
 
    next_hazard = random.randint (1, 10)
    next_colour = random.randint (1, 6)
-   next_position = random.randint (1, 255)
+   next_position = random.randint (1, 31)
 
 def get_index ():
    global next_hazard
@@ -80,19 +81,19 @@ def get_colour ():
 def get_position ():
    global next_position
 
-   next_position = lfsr_ff (next_position)
-   if next_position > 224:
+   next_position = lfsr_1f (next_position)
+   if next_position > 28:
       (x, y) = get_position ()
       return (x, y)
    # speccy has 32x24 big console
    # a hazard is moving on a line 32x7 chars long
    #    one char at a time to the left
-   x = (next_position - 1) % 32
-   if x > 29:
-      (x, y) = get_position ()
-      return (x, y)
-   y = int ((next_position - 1) / 32)
-   return (8*x, 24*y + 8)
+   # each hazard gets 8 chars space
+   #    and a bit of randomness
+   cal = next_position - 1
+   x = 8 * ( ( (8*cal) & 0x1f) + random.randint (0, 5) )
+   y = 24 * (int (cal / 4)) + 8
+   return (x, y)
 
 # jumping jack tile x offset to pygame
 def tile_x_convert_to_pygame (offset):
