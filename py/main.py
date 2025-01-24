@@ -69,6 +69,7 @@ def get_index ():
       next_hazard = lfsr (next_hazard)
    return next_hazard
 
+# any colour you like
 def get_colour ():
    global next_colour
 
@@ -95,24 +96,14 @@ def get_position ():
    y = 24 * (int (cal / 4)) + 8
    return (x, y)
 
-# jumping jack tile x offset to pygame
-def tile_x_convert_to_pygame (offset):
-   # 8 pixels per jumping jack x offset
-   return DOTS_PER_PIXEL_X * 8 * scale * offset
-
-# jumping jack tile y offset to pygame
-def tile_y_convert_to_pygame (offset):
-   # 8 pixels per jumping jack y offset
-   # plus difference between top and bottom left
-   # plus we need to make a room for the sprite
-   return scale * y_res - (DOTS_PER_PIXEL_Y * 8 * scale * (offset + 1)) + 1
-
 # jumping jack x offset to pygame
 def x_convert_to_pygame (x):
+   global scale
    return DOTS_PER_PIXEL_X * scale * x
 
 # jumping jack tile y offset to sdl
 def y_convert_to_pygame (y):
+   global scale
    # plus difference between top and bottom left
    # plus we need to make a room for the sprite
    #return (scale * y_res - (DOTS_PER_PIXEL_Y * scale * (y + 1)) + 1)
@@ -138,6 +129,8 @@ def set_colour (colour):
       return (0x00, 0x00, 0x00)
 
 def draw_element (screen, element, x, y, colour):
+   global x_res
+   global scale
    index = 0
    x_backup = x
    mask = 0x80
@@ -147,7 +140,12 @@ def draw_element (screen, element, x, y, colour):
             if element.sprite[index] & mask:
                w = DOTS_PER_PIXEL_X * scale
                h = DOTS_PER_PIXEL_Y * scale
-               pygame.draw.rect(screen, colour, [x, y, w, h])
+               # True part of the if is jumping jack specific
+               if x > (x_res * scale - 1):
+                  pygame.draw.rect(screen, colour,
+                     [x%(x_res*scale), y+y_convert_to_pygame (24), w, h])
+               else:
+                  pygame.draw.rect(screen, colour, [x, y, w, h])
             x += DOTS_PER_PIXEL_X * scale
             mask = mask >> 1
          mask = 0x80
@@ -174,7 +172,6 @@ def draw_lives (screen):
 frames = 0
 def draw_jack (screen):
    global frames
-
    x = x_convert_to_pygame (96)
    y = y_convert_to_pygame (176)
    if frames >= 120:
@@ -191,7 +188,6 @@ def draw_jack (screen):
 
 def title_loop (screen):
    global pause
-
    init_gaps ()
    init_hazards ()
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
@@ -208,7 +204,6 @@ def title_loop (screen):
 
 def do_events (events, keys):
    global pause
-
    for event in pygame.event.get ():
       for et in events:
          if event.type == pygame.QUIT and et == pygame.QUIT:
@@ -267,7 +262,6 @@ def game_loop (screen):
 def init_gaps ():
    global left_up_gap
    global right_down_gap
-
    # mask is common for both movements; we want the initial position
    #    to be alligned on the character level
    mask = -1
@@ -285,7 +279,6 @@ def init_gaps ():
 def add_gap ():
    global left_up_gap
    global right_down_gap
-
    mask = -1
    mask ^= 0x7
    init = random.randint (0, 2023)
@@ -304,7 +297,6 @@ def gap_pos_to_speccy_x_y (position):
 def move_gaps ():
    global left_up_gap
    global right_down_gap
-
    for i in range (0, len (left_up_gap)):
       x, y, z = left_up_gap[i]
       x = (x - 8) & 0x7ff
@@ -321,7 +313,6 @@ def move_gaps ():
 def draw_gaps (screen):
    global left_up_gap
    global right_down_gap
-
    for i in range (0, len (left_up_gap)):
       pos_1, pos_2, pos_3 = left_up_gap[i]
       # every gap is three speccy characters wide
@@ -355,7 +346,6 @@ def draw_gaps (screen):
 
 def add_hazard ():
    global hazard_list
-
    if len (hazard_list) < 20:
       # get hazard sprite (random)
       i = get_index ()
@@ -372,7 +362,6 @@ def draw_hazards (screen):
    global hazard_list
    # these are sprites
    global hazards
-
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
       sprite = hazards[h.index][h.sprite_idx]
@@ -384,6 +373,9 @@ def draw_hazards (screen):
 def main ():
    global clock
    global font
+   global x_res
+   global y_res
+   global scale
    # pygame setup
    pygame.init ()
    # pygame.mixer.init()
