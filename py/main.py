@@ -200,6 +200,7 @@ def title_loop (screen):
       draw_jack (screen)
       pygame.display.flip ()
       move_gaps ()
+      move_hazards ()
       clock.tick (30) # limits FPS
 
 def do_events (events, keys):
@@ -369,6 +370,24 @@ def draw_hazards (screen):
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
       draw_element (screen, sprite, pygame_x, pygame_y, set_colour (h.colour))
+
+def move_hazards ():
+   global hazard_list
+   # these are sprites
+   global hazards
+   for i in range (0, len (hazard_list)):
+      h = hazard_list[i]
+      n_sprites = len (hazards[h.index])
+      h.sprite_idx = (h.sprite_idx + 1) % n_sprites
+      x, y = h.pos
+      x -= 8
+      if x < 0:
+         x = 247
+         y -= 24
+         if y < 8:
+            x = 247
+            y = 152
+      h.pos = (x, y)
 
 def main ():
    global clock
