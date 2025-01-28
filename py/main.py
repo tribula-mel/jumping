@@ -166,7 +166,7 @@ def draw_lives (screen):
 frames = 0
 def draw_jack (screen):
    global frames
-   x = x_convert_to_pygame (96)
+   x = x_convert_to_pygame (80)
    y = y_convert_to_pygame (176)
    if frames >= 120:
       frames = 0
