@@ -388,7 +388,7 @@ def draw_score (screen):
    global font
    c = set_colour (colour_t.magenta.value)
    tf = font.render ('HI00000 SC00075', True, c)
-   screen.blit (tf, (x_convert_to_pygame (137), y_convert_to_pygame (176)))
+   screen.blit (tf, (x_convert_to_pygame (136), y_convert_to_pygame (176)))
 
 def main ():
    global clock
