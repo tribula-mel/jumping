@@ -12,12 +12,13 @@ scale = 3
 DOTS_PER_PIXEL_X = 1
 DOTS_PER_PIXEL_Y = 1
 
-# original game on cpc464 ran in mode 0
+# speccy's original screen is 256*192 (32x24 chars)
 x_res = DOTS_PER_PIXEL_X * 256
 y_res = DOTS_PER_PIXEL_Y * 192
 
 clock = None
 pause = False
+font  = None
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
@@ -56,14 +57,12 @@ def init_hazards ():
    global next_hazard
    global next_colour
    global next_position
-
    next_hazard = random.randint (1, 10)
    next_colour = random.randint (1, 6)
    next_position = random.randint (1, 31)
 
 def get_index ():
    global next_hazard
-
    next_hazard = lfsr (next_hazard)
    while next_hazard > 10:
       next_hazard = lfsr (next_hazard)
@@ -72,7 +71,6 @@ def get_index ():
 # any colour you like
 def get_colour ():
    global next_colour
-
    next_colour = lfsr (next_colour)
    while next_colour > 6:
       next_colour = lfsr (next_colour)
@@ -81,7 +79,6 @@ def get_colour ():
 # returns random (x, y) tupple in speccy graphical system
 def get_position ():
    global next_position
-
    next_position = lfsr_1f (next_position)
    if next_position > 28:
       (x, y) = get_position ()
@@ -101,12 +98,9 @@ def x_convert_to_pygame (x):
    global scale
    return DOTS_PER_PIXEL_X * scale * x
 
-# jumping jack tile y offset to sdl
+# jumping jack y offset to pygame
 def y_convert_to_pygame (y):
    global scale
-   # plus difference between top and bottom left
-   # plus we need to make a room for the sprite
-   #return (scale * y_res - (DOTS_PER_PIXEL_Y * scale * (y + 1)) + 1)
    return DOTS_PER_PIXEL_Y * scale * y
 
 def set_colour (colour):
@@ -197,6 +191,7 @@ def title_loop (screen):
       draw_lives (screen)
       draw_gaps (screen)
       draw_hazards (screen)
+      draw_score (screen)
       draw_jack (screen)
       pygame.display.flip ()
       move_gaps ()
@@ -389,6 +384,12 @@ def move_hazards ():
             y = 152
       h.pos = (x, y)
 
+def draw_score (screen):
+   global font
+   c = set_colour (colour_t.magenta.value)
+   tf = font.render ('HI00000 SC00075', True, c)
+   screen.blit (tf, (x_convert_to_pygame (137), y_convert_to_pygame (176)))
+
 def main ():
    global clock
    global font
@@ -400,6 +401,7 @@ def main ():
    # pygame.mixer.init()
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
    clock = pygame.time.Clock ()
+   font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
    while True:
       title_loop (screen)
       game_loop (screen)
