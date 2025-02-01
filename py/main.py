@@ -5,6 +5,7 @@ import random
 
 from game_types import colour_t
 from game_types import hazard_t
+from game_types import jack_t
 from gfx_sprites import *
 
 scale = 3
@@ -42,6 +43,8 @@ next_colour = 0
 next_position = 0
 # hazard list; first level has no hazards, level 21 has 20 hazards
 hazard_list = []
+
+jjack = None
 
 # linear pseudo random generator in range [1..f]
 def lfsr (inp):
@@ -164,10 +167,12 @@ def draw_lives (screen):
       draw_element (screen, life, x, y, set_colour (0x03))
 
 frames = 0
-def draw_jack (screen):
+def draw_jack_standing (screen):
    global frames
-   x = x_convert_to_pygame (80)
-   y = y_convert_to_pygame (176)
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y)
    if frames >= 120:
       frames = 0
    if frames < 30:
@@ -180,12 +185,52 @@ def draw_jack (screen):
       draw_element (screen, jack_rf, x, y, set_colour (0x00))
    frames += 1
 
+def draw_jack_left (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x - 8)
+   y = y_convert_to_pygame (s_y)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 0
+      jjack.sprite_idx = 0
+      jjack.pos = (s_x - 8, s_y)
+
+def draw_jack_right (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 0
+      jjack.sprite_idx = 0
+      jjack.pos = (s_x + 8, s_y)
+
+def draw_jack (screen):
+   global jjack
+   if jjack.state == 0:
+      draw_jack_standing (screen)
+   elif jjack.state == 1:
+      draw_jack_left (screen)
+   elif jjack.state == 2:
+      draw_jack_right (screen)
+
 def title_loop (screen):
    global pause
+   global jjack
    init_gaps ()
    init_hazards ()
+   jjack = jack_t (0, (80, 176))
    while do_events ([pygame.QUIT, pygame.KEYDOWN],
-         [pygame.K_ESCAPE, pygame.K_s, pygame.K_g, pygame.K_p, pygame.K_h]):
+         [pygame.K_ESCAPE, pygame.K_s,
+          pygame.K_g, pygame.K_p,
+          pygame.K_h, pygame.K_a,
+          pygame.K_d]):
       screen.fill ((255, 255, 255))
       draw_line (screen)
       draw_lives (screen)
@@ -200,6 +245,7 @@ def title_loop (screen):
 
 def do_events (events, keys):
    global pause
+   global jjack
    for event in pygame.event.get ():
       for et in events:
          if event.type == pygame.QUIT and et == pygame.QUIT:
@@ -228,6 +274,12 @@ def do_events (events, keys):
                         return
                if event.key == pygame.K_h and ke == pygame.K_h:
                   add_hazard ()
+               if event.key == pygame.K_a and ke == pygame.K_a:
+                  if jjack.state == 0:
+                     jjack.state = 1
+               if event.key == pygame.K_d and ke == pygame.K_d:
+                  if jjack.state == 0:
+                     jjack.state = 2
    return True
 
 def game_keys ():

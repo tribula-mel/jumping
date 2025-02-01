@@ -26,3 +26,14 @@ class hazard_t:
       self.sprite_idx = 0
       # speccy graphical coordinates
       self.pos    = pos
+
+class jack_t:
+   def __init__ (self, state, pos):
+      # index into the jack_se list
+      #    0 = standing, 1 = moving left, 2 = moving right
+      #    3 = jump, 4 = stars, 5 = crash, 6 = fall
+      self.state  = state
+      # index into the particular jack sprite set
+      self.sprite_idx = 0
+      # speccy graphical coordinates
+      self.pos    = pos

@@ -1545,6 +1545,16 @@ jack_f4 = sprite_t (0x02, 0x20, 0x00,
      # crouching
      # stars sequence
 
+jack_se = [
+      (jack_ff, jack_lf, jack_ff, jack_rf),
+      (jack_lrls, jack_lrlp, jack_lrlc, jack_lrlws),
+      (jack_rrls, jack_rrlp, jack_rrlc, jack_rrlws),
+      (jack_jc, jack_j1, jack_jlsl, jack_j3),
+      (jack_s0, jack_s1, jack_s2, jack_s3),
+      (jack_c0, jack_c1, jack_c2, jack_c3),
+      (jack_f0, jack_f1, jack_f2, jack_f3, jack_f4, jack_ff, jack_jc),
+]
+
 line_brick = sprite_t (0x01, 0x02, 0x00,
       [
          0xff,
