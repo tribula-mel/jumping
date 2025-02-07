@@ -20,12 +20,13 @@ y_res = DOTS_PER_PIXEL_Y * 192
 clock = None
 pause = False
 font  = None
+grid  = False
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
 # two for starters; the eight lines are internaly
-#    presented as one line; since we are moving half
-#    a character this means 32*2*8 = 512 positions
+#    presented as one line; since we are moving
+#    a character this means 32*8 = 256 positions
 #    within the line, which is 32*8*8 spectrum dots
 #    long (2048)
 # each gap is three speccy chars long
@@ -108,19 +109,19 @@ def y_convert_to_pygame (y):
 
 def set_colour (colour):
    if colour == colour_t.yellow.value:
-      return (0xff, 0xff, 0x80)
+      return (0xd7, 0xd7, 0x00)
    elif colour == colour_t.magenta.value:
-      return (0xff, 0x00, 0xff)
+      return (0xd7, 0x00, 0xd7)
    elif colour == colour_t.cyan.value:
-      return (0x00, 0xff, 0xff)
+      return (0x00, 0xd7, 0xd7)
    elif colour == colour_t.green.value:
-      return (0x00, 0x80, 0x00)
+      return (0x00, 0xd7, 0x00)
    elif colour == colour_t.white.value:
-      return (0xff, 0xff, 0xff)
+      return (0xd7, 0xd7, 0xd7)
    elif colour == colour_t.red.value:
-      return (0xff, 0x00, 0x00)
+      return (0xd7, 0x00, 0x00)
    elif colour == colour_t.blue.value:
-      return (0x80, 0x80, 0xff)
+      return (0x00, 0x00, 0xd7)
    else:
       # black
       return (0x00, 0x00, 0x00)
@@ -211,6 +212,30 @@ def draw_jack_right (screen):
       jjack.sprite_idx = 0
       jjack.pos = (s_x + 8, s_y)
 
+def draw_jack_crash (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y - 8)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 4
+      jjack.sprite_idx = 0
+
+def draw_jack_stars (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 0
+      jjack.sprite_idx = 0
+
 def draw_jack (screen):
    global jjack
    if jjack.state == 0:
@@ -219,7 +244,61 @@ def draw_jack (screen):
       draw_jack_left (screen)
    elif jjack.state == 2:
       draw_jack_right (screen)
+   elif jjack.state == 4:
+      draw_jack_stars (screen)
+   elif jjack.state == 5:
+      draw_jack_crash (screen)
 
+def attempt_up_jack ():
+   global jjack
+   global left_up_gap
+   global right_down_gap
+   sl = jjack.screen_level
+   for i in range (0, len (right_down_gap)):
+      l1, l2, l3 = right_down_gap[i]
+      yl2 = int (l2 / 256)
+      yl3 = int (l3 / 256)
+      if (yl2 == yl3 and yl2 == sl) or (yl2 != yl3 and yl3 == sl):
+         jx, jy = jjack.pos
+         xl2 = l2 % 256
+         xl3 = l3 % 256
+         #print ('jack x/y, gap x/x', jx, jy, xl2, xl3)
+         if (xl2 == jx) or (xl3 == jx):
+            print ('jump through')
+      else:
+         jjack.state = 5
+
+def draw_grid (screen):
+   global grid
+   if grid == False:
+      return
+   green = (0x00, 0xd7, 0x00)
+   black = (0x00, 0x00, 0x00)
+   # draw vertical lines first
+   sx_s = 7
+   sy_s = 0
+   sy_e = 191
+   for i in range (0, 32):
+      x = x_convert_to_pygame (sx_s)
+      y = x_convert_to_pygame (sy_e)
+      if i % 3 == 0:
+         pygame.draw.line (screen, green, (x, sy_s), (x, y))
+      else:
+         pygame.draw.line (screen, black, (x, sy_s), (x, y))
+      sx_s += 8
+   # draw horizontal lines
+   sy_s = 7
+   sx_s = 0
+   sx_e = 255
+   for i in range (0, 24):
+      y = x_convert_to_pygame (sy_s)
+      x = x_convert_to_pygame (sx_e)
+      if i % 3 == 0:
+         pygame.draw.line (screen, green, (sx_s, y), (x, y))
+      else:
+         pygame.draw.line (screen, black, (sx_s, y), (x, y))
+      sy_s += 8
+      
 def title_loop (screen):
    global pause
    global jjack
@@ -230,22 +309,25 @@ def title_loop (screen):
          [pygame.K_ESCAPE, pygame.K_s,
           pygame.K_g, pygame.K_p,
           pygame.K_h, pygame.K_a,
-          pygame.K_d]):
-      screen.fill ((255, 255, 255))
+          pygame.K_d, pygame.K_w,
+          pygame.K_i]):
+      screen.fill ((0xd7, 0xd7, 0xd7))
       draw_line (screen)
       draw_lives (screen)
       draw_gaps (screen)
       draw_hazards (screen)
       draw_score (screen)
       draw_jack (screen)
+      draw_grid (screen)
       pygame.display.flip ()
       move_gaps ()
       move_hazards ()
-      clock.tick (30) # limits FPS
+      clock.tick (3) # limits FPS
 
 def do_events (events, keys):
    global pause
    global jjack
+   global grid
    for event in pygame.event.get ():
       for et in events:
          if event.type == pygame.QUIT and et == pygame.QUIT:
@@ -280,6 +362,14 @@ def do_events (events, keys):
                if event.key == pygame.K_d and ke == pygame.K_d:
                   if jjack.state == 0:
                      jjack.state = 2
+               if event.key == pygame.K_w and ke == pygame.K_w:
+                  if jjack.state == 0:
+                     attempt_up_jack ()
+               if event.key == pygame.K_i and ke == pygame.K_i:
+                  if grid == True:
+                     grid = False
+                  else:
+                     grid = True
    return True
 
 def game_keys ():
@@ -391,6 +481,10 @@ def draw_gaps (screen):
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
       draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      #l1, l2, l3 = right_down_gap[i]
+      #xl2 = l2 % 256
+      #xl3 = l3 % 256
+      #print ('gap x2/x3', xl2, xl3)
 
 def add_hazard ():
    global hazard_list
