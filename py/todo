@@ -1,12 +1,12 @@
-[ ] when hazard is appearing on the bottom line draw it in full size
+[x] when hazard is appearing on the bottom line draw it in full size
     (otherwise we get an artifact on the 8th line) (bug)
 [ ] left/right edges movement
 [ ] jump movement
 [ ] fall movement
-[ ] crash with the line
+[x] crash with the line
 [ ] score
 [ ] collision with a hazard
 [ ] life management
 [ ] game story screens
 [ ] high score
-[ ] hazards are moving out of sync with the gaps (bug)
+[x] hazards are moving out of sync with the gaps (bug)
