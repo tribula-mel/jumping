@@ -1,7 +1,7 @@
 [x] when hazard is appearing on the bottom line draw it in full size
     (otherwise we get an artifact on the 8th line) (bug)
 [ ] left/right edges movement
-[ ] jump movement
+[x] jump movement
 [ ] fall movement
 [x] crash with the line
 [ ] score

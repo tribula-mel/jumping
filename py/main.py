@@ -236,6 +236,32 @@ def draw_jack_stars (screen):
       jjack.state = 0
       jjack.sprite_idx = 0
 
+def draw_jack_jump (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y - 8)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 7
+      jjack.sprite_idx = 0
+
+def draw_jack_through (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y - 24)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 0
+      jjack.sprite_idx = 0
+      jjack.pos = (s_x, s_y - 24)
+      jjack.screen_level -=1
+
 def draw_jack (screen):
    global jjack
    if jjack.state == 0:
@@ -244,10 +270,14 @@ def draw_jack (screen):
       draw_jack_left (screen)
    elif jjack.state == 2:
       draw_jack_right (screen)
+   elif jjack.state == 3:
+      draw_jack_jump (screen)
    elif jjack.state == 4:
       draw_jack_stars (screen)
    elif jjack.state == 5:
       draw_jack_crash (screen)
+   elif jjack.state == 7:
+      draw_jack_through (screen)
 
 def check_left_up_gap ():
    global jjack
@@ -294,6 +324,8 @@ def attempt_up_jack ():
    rs = check_right_down_gap ()
    if ls == False and rs == False:
          jjack.state = 5
+   else:
+         jjack.state = 3
 
 def draw_grid (screen):
    global grid
