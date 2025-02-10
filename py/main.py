@@ -262,6 +262,32 @@ def draw_jack_through (screen):
       jjack.pos = (s_x, s_y - 24)
       jjack.screen_level -=1
 
+def draw_jack_ledge (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 8
+      jjack.sprite_idx = 0
+
+def draw_jack_fall (screen):
+   global jjack
+   s_x, s_y = jjack.pos
+   x = x_convert_to_pygame (s_x)
+   y = y_convert_to_pygame (s_y + 8)
+   sprite = jack_se[jjack.state][jjack.sprite_idx]
+   draw_element (screen, sprite, x, y, set_colour (0x00))
+   jjack.sprite_idx += 1
+   if jjack.sprite_idx >= len (jack_se[jjack.state]):
+      jjack.state = 4
+      jjack.sprite_idx = 0
+      jjack.pos = (s_x, s_y + 24)
+      jjack.screen_level +=1
+
 def draw_jack (screen):
    global jjack
    if jjack.state == 0:
@@ -276,10 +302,14 @@ def draw_jack (screen):
       draw_jack_stars (screen)
    elif jjack.state == 5:
       draw_jack_crash (screen)
+   elif jjack.state == 6:
+      draw_jack_ledge (screen)
    elif jjack.state == 7:
       draw_jack_through (screen)
+   elif jjack.state == 8:
+      draw_jack_fall (screen)
 
-def check_left_up_gap ():
+def up_left_up_gap ():
    global jjack
    global left_up_gap
    jump_through = False
@@ -292,14 +322,14 @@ def check_left_up_gap ():
          jx, jy = jjack.pos
          xl1 = l1 % 256
          xl2 = l2 % 256
-         print ('jack x/y, left gap x/x', jx, jy, xl1, xl2)
+         print ('up jack x/y, left gap x1/x2', jx, jy, xl1, xl2)
          if (xl1 == (jx + 8)) or (xl2 == (jx + 8)):
             print ('left jump through')
             jump_through = True
             break
    return jump_through
 
-def check_right_down_gap ():
+def up_right_down_gap ():
    global jjack
    global right_down_gap
    jump_through = False
@@ -312,7 +342,7 @@ def check_right_down_gap ():
          jx, jy = jjack.pos
          xl2 = l2 % 256
          xl3 = l3 % 256
-         print ('jack x/y, right gap x/x', jx, jy, xl2, xl3)
+         print ('up jack x/y, right gap x2/x3', jx, jy, xl2, xl3)
          if (xl3 == jx) or (xl2 == jx):
             print ('right jump through')
             jump_through = True
@@ -320,12 +350,59 @@ def check_right_down_gap ():
    return jump_through
 
 def attempt_up_jack ():
-   ls = check_left_up_gap ()
-   rs = check_right_down_gap ()
+   ls = up_left_up_gap ()
+   rs = up_right_down_gap ()
    if ls == False and rs == False:
          jjack.state = 5
    else:
          jjack.state = 3
+
+def down_left_up_gap ():
+   global jjack
+   global left_up_gap
+   fall_down = False
+   sl = jjack.screen_level
+   for i in range (0, len (left_up_gap)):
+      l1, l2, l3 = left_up_gap[i]
+      yl1 = int (l1 / 256)
+      yl2 = int (l2 / 256)
+      if ((yl1 - 1) == sl and (yl2 - 1) == sl):
+         jx, jy = jjack.pos
+         xl1 = l1 % 256
+         xl2 = l2 % 256
+         print ('down jack x/y, left gap x1/x2', jx, jy, xl1, xl2)
+         if xl1 == jx and xl2 == (jx + 8):
+            print ('left down fall')
+            fall_down = True
+            break
+   return fall_down
+
+def down_right_down_gap ():
+   global jjack
+   global right_down_gap
+   fall_down = False
+   sl = jjack.screen_level
+   for i in range (0, len (right_down_gap)):
+      l1, l2, l3 = right_down_gap[i]
+      yl2 = int (l2 / 256)
+      yl3 = int (l3 / 256)
+      if ((yl2 - 1) == sl and (yl3 - 1) == sl):
+         jx, jy = jjack.pos
+         xl2 = l2 % 256
+         xl3 = l3 % 256
+         print ('down jack x/y, right gap x2/x3', jx, jy, xl2, xl3)
+         if xl2 == jx and xl3 == (jx + 8):
+            print ('right down fall')
+            fall_down = True
+            break
+   return fall_down
+
+def attempt_down_jack ():
+   ls = down_left_up_gap ()
+   rs = down_right_down_gap ()
+   if jjack.state == 0 or jjack.state == 3:
+      if ls == True or rs == True:
+         jjack.state = 6
 
 def draw_grid (screen):
    global grid
@@ -378,6 +455,7 @@ def title_loop (screen):
       draw_gaps (screen)
       draw_hazards (screen)
       draw_score (screen)
+      attempt_down_jack ()
       draw_jack (screen)
       draw_grid (screen)
       pygame.display.flip ()
