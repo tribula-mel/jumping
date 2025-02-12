@@ -2,7 +2,7 @@
     (otherwise we get an artifact on the 8th line) (bug)
 [ ] left/right edges movement
 [x] jump movement
-[ ] fall movement
+[x] fall movement
 [x] crash with the line
 [ ] score
 [ ] collision with a hazard
