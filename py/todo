@@ -5,7 +5,7 @@
 [x] fall movement
 [x] crash with the line
 [ ] score
-[ ] collision with a hazard
+[x] collision with a hazard
 [ ] life management
 [ ] game story screens
 [ ] high score

@@ -31,7 +31,7 @@ grid  = False
 #    long (2048)
 # each gap is three speccy chars long
 # holders for the gaps; each gap is presented with a single
-#    integer (random starting value) within [0..511] range
+#    integer (random starting value) within [0..2047] range
 left_up_gap = []
 right_down_gap = []
 
@@ -46,6 +46,7 @@ next_position = 0
 hazard_list = []
 
 jjack = None
+high_score = 113
 
 # linear pseudo random generator in range [1..f]
 def lfsr (inp):
@@ -162,8 +163,9 @@ def draw_line (screen):
          draw_element (screen, line_brick, x, y, set_colour (0x02))
 
 def draw_lives (screen):
+   global jjack
    y = y_convert_to_pygame (176)
-   for i in range (0, 6):
+   for i in range (0, jjack.lives):
       x = x_convert_to_pygame (8* i)
       draw_element (screen, life, x, y, set_colour (0x03))
 
@@ -353,8 +355,10 @@ def attempt_up_jack ():
    ls = up_left_up_gap ()
    rs = up_right_down_gap ()
    if ls == False and rs == False:
+         # jump crash
          jjack.state = 5
    else:
+         # jump state
          jjack.state = 3
 
 def down_left_up_gap ():
@@ -400,8 +404,11 @@ def down_right_down_gap ():
 def attempt_down_jack ():
    ls = down_left_up_gap ()
    rs = down_right_down_gap ()
-   if jjack.state == 0 or jjack.state == 3:
+   # we can reach the fall state from standing or from
+   #    stars state
+   if jjack.state == 0 or jjack.state == 4:
       if ls == True or rs == True:
+         # fall state
          jjack.state = 6
 
 def draw_grid (screen):
@@ -434,7 +441,22 @@ def draw_grid (screen):
       else:
          pygame.draw.line (screen, black, (sx_s, y), (x, y))
       sy_s += 8
-      
+
+def collision_check ():
+   global hazard_list
+   global jjack
+   hl = len (hazard_list)
+   if hl == 0:
+      return
+   jx, jy = jjack.pos
+   for i in range (0, hl):
+      hx, hy = hazard_list[i].pos
+      if jy == hy:
+         if jx <= hx and (jx + 16) > hx:
+            # stars state
+            jjack.state = 4
+            return
+
 def title_loop (screen):
    global pause
    global jjack
@@ -457,6 +479,7 @@ def title_loop (screen):
       draw_score (screen)
       attempt_down_jack ()
       draw_jack (screen)
+      collision_check ()
       draw_grid (screen)
       pygame.display.flip ()
       clock.tick (15) # limits FPS
@@ -495,9 +518,11 @@ def do_events (events, keys):
                   add_hazard ()
                if event.key == pygame.K_a and ke == pygame.K_a:
                   if jjack.state == 0:
+                     # left state
                      jjack.state = 1
                if event.key == pygame.K_d and ke == pygame.K_d:
                   if jjack.state == 0:
+                     # right state
                      jjack.state = 2
                if event.key == pygame.K_w and ke == pygame.K_w:
                   if jjack.state == 0:
@@ -542,7 +567,7 @@ def init_gaps ():
    mask = -1
    mask ^= 0x7
    # both gaps are starting from the same position
-   # the gaps will be moving from [0..2023], in four dots steps,
+   # the gaps will be moving from [0..2023], in eight dots steps,
    #    last three positions being needed for the full gap length
    # line is 2048 [0..2047] dots long (32 chars * 8 dots/char * 8 lines)
    # both gaps have origin in the left corner
@@ -667,10 +692,26 @@ def move_hazards ():
             y = 152
       h.pos = (x, y)
 
+def prep_string (num):
+   st = ''
+   dividend = 10000
+   for i in range (0, 4):
+      st += str (int (num / dividend))
+      num = num % dividend
+      dividend = int (dividend / 10)
+   st += str (num)
+   return st
+
 def draw_score (screen):
    global font
+   global jjack
+   global high_score
+   st = 'HI'
    c = set_colour (colour_t.magenta.value)
-   tf = font.render ('HI00000 SC00075', True, c)
+   st += prep_string (high_score)
+   st += ' SC'
+   st += prep_string (jjack.score)
+   tf = font.render (st, True, c)
    screen.blit (tf, (x_convert_to_pygame (136), y_convert_to_pygame (176)))
 
 def main ():

@@ -32,6 +32,7 @@ class jack_t:
       # index into the jack_se list
       #    0 = standing, 1 = moving left, 2 = moving right
       #    3 = jump, 4 = stars, 5 = crash, 6 = fall
+      #    7 = second part of the jump, 8 = second part of the fall
       self.state  = state
       # index into the particular jack sprite set
       self.sprite_idx = 0
@@ -39,3 +40,5 @@ class jack_t:
       self.pos    = pos
       # starting position: botttom of the screen
       self.screen_level = 7
+      self.lives = 3
+      self.score = 9277
