@@ -1,0 +1,195 @@
+-| main loop
+   $6f5f to $7004
+
+-| 6fb0 call $797f
+   moves holes
+
+-| 6f5f call $797f
+   animates standing jack
+
+-| 6f73 call $78d6
+   standing beep
+
+-| $7098 ENTER handling code
+
+-| call $797f
+   moves hazards as well
+
+-| $70d6 self modifying code
+
+-| $7007 new level
+
+-| $6e22
+   off $0b game status ? $02 == game over
+   			  $00 == game running
+   off $0c lives
+   off $0d number of holes ?
+   off $0e level number (starting from $0)
+
+-| $7f06 call $7db2 prints the verses
+
+-| $6f5f call $797f
+   draws entire level with full 8 lines (no holes),
+      number of hazards, lives, jack, hi score and score
+   $6f76 call $797f
+   draws one hole 
+ 
+ -| $758d dec (ix+$0c) decrements lives number  
+
+6f53 call $6e98
+   clears the screen among the things
+
+7428 draws 8 lines
+     each line has two lines in screenmemory
+     the screen addresses for each line are
+      line 1 4000 and 4100
+      line 2 4060 and 4160
+      line 3 40c0 and 41c0
+      line 4 4820 and 4920
+      line 5 4880 and 4980
+      line 6 48e0 and 49e0
+      line 7 5040 and 5140
+      line 8 50a0 and 51a0
+
+speccy screen size is 32x24
+
+7969 sets paper/ink for the lines
+   111 white
+   110 yellow
+   101 cyan
+   100 green
+   011 purple
+   010 red
+   001 blue
+   000 black
+
+rom 3d80 character 0 (8 bytes)
+    3d88 character 1 (8 bytes)
+    3d90 character 2
+    3d98 3
+    3da0 4
+    3da8 5
+    3db0 6
+    3db8 7
+    3dc0 8
+    3dc8 9
+
+rom 3e08 char A
+rom 3e18 char C
+rom 3e40 char H
+rom 3e48 char I
+rom 3e98 char S
+
+score starts at 50d3 - 57d3 first digit
+                50d4 - 57d4 second digit
+                50d5 - 57d5 third digit
+                50d6 - 57d6 fourth digit
+                50d7 - 57d7 fifth digit
+
+$6e22 + 23
+6e45 score five bytes
+$6e27 + 23
+6e4a hi score five bytes
+
+call 7403 print a char
+   hl = char address (it can be in ROM)
+   de = screen address
+   bc = width / hight
+
+call 7864 prints the score
+call 7c83 prints 'HI      SC'
+   H @ 50d1
+   I @ 50d2
+   S @ 50d9
+   C @ 50da
+
+call 7873 prints hi score digits
+   50db first high score digit
+   50dc second
+   50dd third
+   50de forth
+   50df fifth
+
+call 78f5 draws life sprites
+   50c0 - 50c5 screen address
+   6e0e life sprite 8 bytes
+
+call 7c79
+   moves bytes 00 ea 00 from 6e22+08 to
+      6e22+2d
+call 726d
+   6e22 + 0x2e
+   6e22 + 0x2d is used to self modify the
+      code at 728e and thus choose one
+      jump address from the table of 9
+   728d - 72a9 is the 9 entry jump table
+
+72aa
+   draws jack at starting point 50ca
+   sprite 5d8e 2x2 (jack facing forward)
+      32 bytes 
+   sprite 5dae 2x2 (jack facing left)
+      32 bytes 
+      5dae to 5dbd first row
+      5dbe to 5dcd second row
+   sprite 5e0e 3x2 (jack running left, legs spread)
+   sprite 5e3e 3x2 (jack running left, legs narrow)
+   sprite 5e6e 3x2 (jack running left, legs crossed)
+
+7b2a reading the keyboard z key ?
+
+728f jp $72aa  # jack standing
+7292 jp $72ba  # rshift pressed (left move)
+7295 jp $72e8  # space pressed (right move)
+7298 jp $7317  # lshift pressed (jump move)
+72a4 jp $7360  # lshift pressed (jump and hit the wall)
+72a7 jp $736b  # stars
+729b jp $7325  # fall through (initial fall while on the gap)
+729e jp $7344  # jump through
+72a1 jp $7352  # fall through
+
+regarding jack screen is a matrix of 8 vertical (bottom being 7 and the top 0)
+and 31 horizontal locations (left being 0 and 30 being the right most position)
+this info is stored at ix+$2e (top 3 bits for y and bottom 5 for x)
+
+78e0 self modifying code; jump table with 4 cases
+720b - 721a 8 16-bit values; screen addresses for the top line of the ceiling
+   4000, 4060, 40c0, 4820, 4880, 48e0, 5040, 50a0
+   the top lines of the ceiling are spaced at 24 screen lines
+
+71fb takes as 'a' reg as an input (top three bits are line number, bottom
+   five bits is the offset where the hole is - the left most byte of the hole)
+   calculates the screen address for the left hole corner
+
+ix (6e22) offset 0 - 3 down moving holes (left position)
+            initially all 4 bytes are the same meaning there is only one hole
+               as new holes are created so the bytes will differ
+          offset 4 - 7 left moving holes (left position)
+ix (6e22) offset e - number of hazards
+
+call 70d6 moves all the holes
+6ff0 call 76db draws hazards
+   hazard starting point 5073 (could be random)
+   the hazard is drawn from three goes, since it is 3x2 chars, every
+      vertical is drawn separately; because it is moving gradually through
+      the edges (as opposed to jack)
+
+7e5d inc (ix+$e) inc hazard number dd 34 0e
+
+jumping jack loading address seems to be 5d8e
+entry point seems to be 6f42
+
+076e loads the tape header only
+0802 call $0556 loads the tape data block
+
+1ec6 interesting code
+
+76a0 reads 'space' status
+778c
+6e16 (ix - $c) space status ($2 for jump)
+6e2a (ix + $8) (6e16)*2 + (6e16)
+6e1a gets $1 when 'space' pressed
+6ffb
+
+7755 call $776e # drawing of a hazard (de = screen address,
+                  hl = sprite address)
