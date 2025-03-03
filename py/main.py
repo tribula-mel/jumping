@@ -7,6 +7,7 @@ from game_types import colour_t
 from game_types import hazard_t
 from game_types import jack_t
 from gfx_sprites import *
+from ballad import ballad_list
 
 scale = 3
 
@@ -21,10 +22,11 @@ clock = None
 pause = False
 font  = None
 grid  = False
+level = 0
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
-# two for starters; the eight lines are internaly
+# two for starters; the eight lines are internally
 #    presented as one line; since we are moving
 #    a character this means 32*8 = 256 positions
 #    within the line, which is 32*8*8 spectrum dots
@@ -107,6 +109,15 @@ def x_convert_to_pygame (x):
 def y_convert_to_pygame (y):
    global scale
    return DOTS_PER_PIXEL_Y * scale * y
+
+def convert_to_pygame (lt):
+   global scale
+   x1, y1, x2, y2 = lt
+   rx1 = DOTS_PER_PIXEL_X * scale * x1
+   rx2 = DOTS_PER_PIXEL_X * scale * x2
+   ry1 = DOTS_PER_PIXEL_Y * scale * y1
+   ry2 = DOTS_PER_PIXEL_Y * scale * y2
+   return [rx1, ry1, rx2, ry2]
 
 def set_colour (colour):
    if colour == colour_t.yellow.value:
@@ -457,7 +468,7 @@ def collision_check ():
             jjack.state = 4
             return
 
-def title_loop (screen):
+def game_loop (screen):
    global pause
    global jjack
    init_gaps ()
@@ -534,28 +545,56 @@ def do_events (events, keys):
                      grid = True
    return True
 
-def game_keys ():
-   keys = pygame.key.get_pressed ()
-   if keys[pygame.K_RIGHT]:
-      print ('right')
-   if keys[pygame.K_LEFT]:
-      print ('left')
-   if keys[pygame.K_UP]:
-      print ('up')
-   if keys[pygame.K_DOWN]:
-      print ('down')
-   if keys[pygame.K_LCTRL]:
-      print ('left ctrl')
-
-def game_loop (screen):
+def ballad_loop (screen):
    global clock
+   global level
+   global ballad_list
+   rd = False
+   cy = set_colour (colour_t.yellow.value)
+   cg = set_colour (colour_t.green.value)
+   cw = set_colour (colour_t.white.value)
+   cb = set_colour (colour_t.black.value)
+   cp = set_colour (colour_t.blue.value)
+   jj = font.render ('JUMPING JACK', True, cb)
+   tl = 'NEXT LEVEL - '
+   if level < 10:
+      tl += ' '
+   tl += str (level + 1) + '  HAZARD'
+   if (level + 1) > 1:
+      tl += 'S'
+   nl = font.render (tl, True, cp)
+   st1 = ballad_list [level][0]
+   if len (ballad_list[level]) == 2:
+      st2 = ballad_list [level][1]
+   else:
+      st2 = None
+   pst1 = ''
+   pst2 = ''
+   i = 0
+   j = 0
    while True:
-      game_keys ()
       running = do_events ([pygame.QUIT, pygame.KEYDOWN],
                            [pygame.K_ESCAPE, pygame.K_t, pygame.K_n])
       if (running == False):
          break
-      screen.fill ((0,0,0))
+      screen.fill (cy)
+      pygame.draw.rect(screen, cg, convert_to_pygame ([64, 16, 128, 24]))
+      screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (24)))
+      pygame.draw.rect(screen, cw, convert_to_pygame ([16, 64, 224, 24]))
+      screen.blit (nl, (x_convert_to_pygame (32), y_convert_to_pygame (72)))
+      if i < len (st1):
+         pst1 += st1[i]
+         r1 = font.render (pst1, True, cp)
+         i += 1
+      else:
+         rd = True
+      if st2 != None and rd == True:
+         if j < len (st2):
+            pst2 += st2[j]
+            r2 = font.render (pst2, True, cp)
+            j += 1
+         screen.blit (r2, (x_convert_to_pygame (0), y_convert_to_pygame (136)))
+      screen.blit (r1, (x_convert_to_pygame (0), y_convert_to_pygame (128)))
       pygame.display.flip ()
       clock.tick (35) # limits FPS
 
@@ -563,7 +602,7 @@ def init_gaps ():
    global left_up_gap
    global right_down_gap
    # mask is common for both movements; we want the initial position
-   #    to be alligned on the character level
+   #    to be aligned on the character level
    mask = -1
    mask ^= 0x7
    # both gaps are starting from the same position
@@ -724,11 +763,12 @@ def main ():
    pygame.init ()
    # pygame.mixer.init()
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
+   pygame.display.set_caption("Jumping Jack")
    clock = pygame.time.Clock ()
    font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
    while True:
-      title_loop (screen)
       game_loop (screen)
+      ballad_loop (screen)
    pygame.quit ()
 
 if __name__ == '__main__':
