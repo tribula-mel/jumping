@@ -7,6 +7,6 @@
 [ ] score
 [x] collision with a hazard
 [ ] life management
-[ ] game story screens
+[x] game story screens
 [ ] high score
 [x] hazards are moving out of sync with the gaps (bug)
