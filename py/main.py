@@ -9,7 +9,7 @@ from game_types import jack_t
 from gfx_sprites import *
 from ballad import ballad_list
 
-scale = 3
+scale = 2
 
 DOTS_PER_PIXEL_X = 1
 DOTS_PER_PIXEL_Y = 1
@@ -23,6 +23,8 @@ pause = False
 font  = None
 grid  = False
 level = 0
+frame = 0
+hhse  = 0
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
@@ -180,24 +182,20 @@ def draw_lives (screen):
       x = x_convert_to_pygame (8* i)
       draw_element (screen, life, x, y, set_colour (0x03))
 
-frames = 0
 def draw_jack_standing (screen):
-   global frames
+   global frame
    global jjack
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
-   if frames >= 120:
-      frames = 0
-   if frames < 30:
+   if (frame & 0xf) < 4:
       draw_element (screen, jack_ff, x, y, set_colour (0x00))
-   elif frames < 60:
+   elif (frame & 0xf) < 8:
       draw_element (screen, jack_lf, x, y, set_colour (0x00))
-   elif frames < 90:
+   elif (frame & 0xf) < 12:
       draw_element (screen, jack_ff, x, y, set_colour (0x00))
-   elif frames < 120:
+   elif (frame & 0xf) <= 15:
       draw_element (screen, jack_rf, x, y, set_colour (0x00))
-   frames += 1
 
 def draw_jack_left (screen):
    global jjack
@@ -263,6 +261,7 @@ def draw_jack_jump (screen):
 
 def draw_jack_through (screen):
    global jjack
+   global level
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 24)
@@ -274,6 +273,8 @@ def draw_jack_through (screen):
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y - 24)
       jjack.screen_level -=1
+      jjack.score += 5 * (level + 1)
+      add_gap ()
 
 def draw_jack_ledge (screen):
    global jjack
@@ -471,6 +472,7 @@ def collision_check ():
 def game_loop (screen):
    global pause
    global jjack
+   global frame
    init_gaps ()
    init_hazards ()
    jjack = jack_t (0, (80, 176))
@@ -493,6 +495,7 @@ def game_loop (screen):
       collision_check ()
       draw_grid (screen)
       pygame.display.flip ()
+      frame += 1
       clock.tick (15) # limits FPS
 
 def do_events (events, keys):

@@ -1,12 +1,8 @@
-[x] when hazard is appearing on the bottom line draw it in full size
-    (otherwise we get an artifact on the 8th line) (bug)
 [ ] left/right edges movement
-[x] jump movement
-[x] fall movement
-[x] crash with the line
-[ ] score
-[x] collision with a hazard
+[x] score
 [ ] life management
-[x] game story screens
 [ ] high score
-[x] hazards are moving out of sync with the gaps (bug)
+[ ] sound
+[ ] game over screen
+[x] generate gaps with a jump
+[ ] when running no fall (bug)

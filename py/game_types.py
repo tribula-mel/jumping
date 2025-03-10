@@ -20,12 +20,12 @@ class sprite_t:
 class hazard_t:
    def __init__ (self, index, colour, pos):
       # index into the hazards list
-      self.index  = index
-      self.colour = colour
+      self.index      = index
+      self.colour     = colour
       # index into the particular hazard sprite set
       self.sprite_idx = 0
       # speccy graphical coordinates
-      self.pos    = pos
+      self.pos        = pos
 
 class jack_t:
    def __init__ (self, state, pos):
@@ -33,12 +33,12 @@ class jack_t:
       #    0 = standing, 1 = moving left, 2 = moving right
       #    3 = jump, 4 = stars, 5 = crash, 6 = fall
       #    7 = second part of the jump, 8 = second part of the fall
-      self.state  = state
+      self.state        = state
       # index into the particular jack sprite set
-      self.sprite_idx = 0
+      self.sprite_idx   = 0
       # speccy graphical coordinates
-      self.pos    = pos
+      self.pos          = pos
       # starting position: botttom of the screen
       self.screen_level = 7
-      self.lives = 3
-      self.score = 9277
+      self.lives        = 6
+      self.score        = 0
