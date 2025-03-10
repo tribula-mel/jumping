@@ -6,3 +6,4 @@
 [ ] game over screen
 [x] generate gaps with a jump
 [ ] when running no fall (bug)
+[ ] cleanup do_event when all polished
