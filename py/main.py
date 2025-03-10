@@ -27,6 +27,7 @@ level = 0
 frame = 0
 hhse  = 0
 snds  = None
+nl    = False
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
@@ -254,6 +255,8 @@ def draw_jack_crash (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
       jjack.sprite_idx = 0
+      if jjack.screen_level == 7:
+         jjack.lives -= 1
 
 def draw_jack_stars (screen):
    global jjack
@@ -273,6 +276,7 @@ def draw_jack_stars (screen):
 def draw_jack_jump (screen):
    global jjack
    global snds
+   global nl
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 8)
@@ -284,6 +288,9 @@ def draw_jack_jump (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 7
       jjack.sprite_idx = 0
+      jjack.score += 5 * (level + 1)
+      if jjack.screen_level == 0:
+         nl = True
 
 def draw_jack_through (screen):
    global jjack
@@ -299,7 +306,6 @@ def draw_jack_through (screen):
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y - 24)
       jjack.screen_level -= 1
-      jjack.score += 5 * (level + 1)
       add_gap ()
 
 def draw_jack_ledge (screen):
@@ -329,7 +335,11 @@ def draw_jack_fall (screen):
       jjack.state = 4
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y + 24)
-      jjack.screen_level +=1
+      jjack.screen_level += 1
+      if jjack.screen_level == 7:
+         jjack.lives -= 1
+         if jjack.lives == 0:
+            print ('the end')
 
 def draw_jack (screen):
    global jjack
@@ -498,6 +508,49 @@ def collision_check ():
             jjack.state = 4
             return
 
+def the_end_loop (screen):
+   global clock
+   global level
+   global jjack
+   cy = set_colour (colour_t.yellow.value)
+   cg = set_colour (colour_t.green.value)
+   cw = set_colour (colour_t.white.value)
+   cb = set_colour (colour_t.black.value)
+   cp = set_colour (colour_t.blue.value)
+   cc = set_colour (colour_t.cyan.value)
+   cl = set_colour (colour_t.magenta.value)
+   jj = font.render ('JUMPING JACK', True, cb)
+   ts = 'FINAL SCORE  ' + prep_string (jjack.score)
+   ts2 = 'WITH '
+   if level < 10:
+      ts2 += ' '
+   ts2 += str (level) + '  HAZARD'
+   if level != 1:
+      ts2 += 'S'
+   te = 'Press ENTER to replay'
+   rs = font.render (ts, True, cb)
+   rs2 = font.render (ts2, True, cb)
+   re = font.render (te, True, cp)
+   while True:
+      running = do_events ([pygame.QUIT, pygame.KEYDOWN],
+                           [pygame.K_ESCAPE, pygame.K_RETURN])
+      if (running == False):
+         break
+      screen.fill (cy)
+      pygame.draw.rect(screen, cg, convert_to_pygame ([64, 40, 128, 24]))
+      screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (48)))
+      pygame.draw.rect(screen, cc, convert_to_pygame ([40, 96, 176, 40]))
+      screen.blit (rs, (x_convert_to_pygame (56), y_convert_to_pygame (104)))
+      screen.blit (rs2, (x_convert_to_pygame (64), y_convert_to_pygame (120)))
+      screen.blit (re, (x_convert_to_pygame (40), y_convert_to_pygame (176)))
+      pygame.display.flip ()
+      clock.tick (35) # limits FPS
+
+def lives_mana (screen):
+   global jjack
+   if jjack.lives == 0:
+      the_end_loop (screen)
+
 def game_loop (screen):
    global pause
    global jjack
@@ -522,6 +575,8 @@ def game_loop (screen):
       attempt_down_jack ()
       draw_jack (screen)
       collision_check ()
+      lives_mana (screen)
+      # level_mana ()
       draw_grid (screen)
       pygame.display.flip ()
       frame += 1
