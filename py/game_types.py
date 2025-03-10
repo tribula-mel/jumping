@@ -42,3 +42,16 @@ class jack_t:
       self.screen_level = 7
       self.lives        = 6
       self.score        = 0
+
+class sounds_t:
+   def __init__ (self):
+      self.fall_thro = None
+      self.ff_head = None
+      self.game_end = None
+      self.jump_thro = None
+      self.line_crash = None
+      self.lr_head = None
+      self.new_level = None
+      self.run = None
+      self.squash = None
+      self.stars = None
