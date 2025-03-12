@@ -42,6 +42,8 @@ class jack_t:
       self.screen_level = 7
       self.lives        = 6
       self.score        = 0
+      self.level        = 0
+      self.next         = False
 
 class sounds_t:
    def __init__ (self):

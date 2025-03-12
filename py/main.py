@@ -23,11 +23,9 @@ clock = None
 pause = False
 font  = None
 grid  = False
-level = 0
 frame = 0
 hhse  = 0
 snds  = None
-nl    = False
 
 # do not cross the line :) , but embed gaps within
 # there are eight lines with maximum of eight gaps
@@ -53,7 +51,7 @@ next_position = 0
 hazard_list = []
 
 jjack = None
-high_score = 113
+high_score = 0
 
 # linear pseudo random generator in range [1..f]
 def lfsr (inp):
@@ -276,7 +274,6 @@ def draw_jack_stars (screen):
 def draw_jack_jump (screen):
    global jjack
    global snds
-   global nl
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 8)
@@ -288,13 +285,12 @@ def draw_jack_jump (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 7
       jjack.sprite_idx = 0
-      jjack.score += 5 * (level + 1)
+      jjack.score += 5 * (jjack.level + 1)
       if jjack.screen_level == 0:
-         nl = True
+         jjack.next = True
 
 def draw_jack_through (screen):
    global jjack
-   global level
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 24)
@@ -510,7 +506,6 @@ def collision_check ():
 
 def the_end_loop (screen):
    global clock
-   global level
    global jjack
    cy = set_colour (colour_t.yellow.value)
    cg = set_colour (colour_t.green.value)
@@ -522,10 +517,10 @@ def the_end_loop (screen):
    jj = font.render ('JUMPING JACK', True, cb)
    ts = 'FINAL SCORE  ' + prep_string (jjack.score)
    ts2 = 'WITH '
-   if level < 10:
+   if jjack.level < 10:
       ts2 += ' '
-   ts2 += str (level) + '  HAZARD'
-   if level != 1:
+   ts2 += str (jjack.level) + '  HAZARD'
+   if jjack.level != 1:
       ts2 += 'S'
    te = 'Press ENTER to replay'
    rs = font.render (ts, True, cb)
@@ -553,6 +548,15 @@ def finish_game (screen):
       return True
    return False
 
+def next_level (screen):
+   global jjack
+   if jjack.next == True:
+      jjack.next = False
+      jjack.level += 1
+      jjack.screen_level = 7
+      jjack.pos = (80, 176)
+      ballad_loop (screen)
+
 def game_loop (screen):
    global pause
    global jjack
@@ -578,10 +582,10 @@ def game_loop (screen):
       collision_check ()
       if True == finish_game (screen):
          return
-      # level_mana ()
       draw_grid (screen)
       pygame.display.flip ()
       frame += 1
+      next_level (screen)
       clock.tick (15) # limits FPS
 
 def do_events (events, keys):
@@ -638,7 +642,7 @@ def do_events (events, keys):
 
 def ballad_loop (screen):
    global clock
-   global level
+   global jjack
    global ballad_list
    rd = False
    cy = set_colour (colour_t.yellow.value)
@@ -648,15 +652,15 @@ def ballad_loop (screen):
    cp = set_colour (colour_t.blue.value)
    jj = font.render ('JUMPING JACK', True, cb)
    tl = 'NEXT LEVEL - '
-   if level < 10:
+   if jjack.level < 10:
       tl += ' '
-   tl += str (level + 1) + '  HAZARD'
-   if (level + 1) > 1:
+   tl += str (jjack.level) + '  HAZARD'
+   if jjack.level > 1:
       tl += 'S'
    nl = font.render (tl, True, cp)
-   st1 = ballad_list [level][0]
-   if len (ballad_list[level]) == 2:
-      st2 = ballad_list [level][1]
+   st1 = ballad_list [jjack.level - 1][0]
+   if len (ballad_list[jjack.level - 1]) == 2:
+      st2 = ballad_list [jjack.level - 1][1]
    else:
       st2 = None
    pst1 = ''
@@ -882,7 +886,6 @@ def main ():
    while True:
       game_loop (screen)
       the_end_loop (screen)
-      # ballad_loop (screen)
    pygame.quit ()
 
 if __name__ == '__main__':
