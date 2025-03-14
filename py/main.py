@@ -556,6 +556,9 @@ def next_level (screen):
       jjack.screen_level = 7
       jjack.pos = (80, 176)
       ballad_loop (screen)
+      clear_gaps ()
+      init_gaps ()
+      add_hazard ()
 
 def game_loop (screen):
    global pause
@@ -585,8 +588,8 @@ def game_loop (screen):
       draw_grid (screen)
       pygame.display.flip ()
       frame += 1
-      next_level (screen)
       clock.tick (15) # limits FPS
+      next_level (screen)
 
 def do_events (events, keys):
    global pause
@@ -644,6 +647,7 @@ def ballad_loop (screen):
    global clock
    global jjack
    global ballad_list
+   global frame
    rd = False
    cy = set_colour (colour_t.yellow.value)
    cg = set_colour (colour_t.green.value)
@@ -667,6 +671,7 @@ def ballad_loop (screen):
    pst2 = ''
    i = 0
    j = 0
+   sf = frame
    while True:
       running = do_events ([pygame.QUIT, pygame.KEYDOWN],
                            [pygame.K_ESCAPE, pygame.K_t, pygame.K_n])
@@ -681,7 +686,7 @@ def ballad_loop (screen):
          pst1 += st1[i]
          r1 = font.render (pst1, True, cp)
          i += 1
-      else:
+      elif rd == False:
          rd = True
       if st2 != None and rd == True:
          if j < len (st2):
@@ -692,6 +697,10 @@ def ballad_loop (screen):
       screen.blit (r1, (x_convert_to_pygame (0), y_convert_to_pygame (128)))
       pygame.display.flip ()
       clock.tick (35) # limits FPS
+      frame += 1
+      # 9 seconds loop
+      if (frame - sf) >= (9 * 35):
+         break
 
 def init_gaps ():
    global left_up_gap
