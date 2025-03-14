@@ -1,7 +1,4 @@
 [ ] left/right edges movement
-[x] life management
 [ ] high score
-[x] sound
-[x] game over screen
 [ ] when running no fall (bug)
 [ ] cleanup do_event when all polished
