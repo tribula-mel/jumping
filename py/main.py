@@ -527,8 +527,7 @@ def the_end_loop (screen):
    rs2 = font.render (ts2, True, cb)
    re = font.render (te, True, cp)
    while True:
-      running = do_events ([pygame.QUIT, pygame.KEYDOWN],
-                           [pygame.K_ESCAPE, pygame.K_RETURN])
+      running = do_events ([pygame.K_ESCAPE, pygame.K_RETURN])
       if (running == False):
          break
       screen.fill (cy)
@@ -567,12 +566,11 @@ def game_loop (screen):
    global frame
    init_gaps ()
    jjack = jack_t (0, (80, 176))
-   while do_events ([pygame.QUIT, pygame.KEYDOWN],
-         [pygame.K_ESCAPE, pygame.K_s,
-          pygame.K_g, pygame.K_p,
-          pygame.K_h, pygame.K_a,
-          pygame.K_d, pygame.K_w,
-          pygame.K_i]):
+   while do_events ([pygame.K_ESCAPE, pygame.K_s,
+                     pygame.K_g, pygame.K_p,
+                     pygame.K_h, pygame.K_a,
+                     pygame.K_d, pygame.K_w,
+                     pygame.K_i]):
       screen.fill ((0xd7, 0xd7, 0xd7))
       draw_line (screen)
       draw_lives (screen)
@@ -592,56 +590,54 @@ def game_loop (screen):
       clock.tick (15) # limits FPS
       next_level (screen)
 
-def do_events (events, keys):
+def do_events (keys):
    global pause
    global jjack
    global grid
    for event in pygame.event.get ():
-      for et in events:
-         if event.type == pygame.QUIT and et == pygame.QUIT:
-            exit ()
-         elif event.type == pygame.KEYDOWN and et == pygame.KEYDOWN:
-            for ke in keys:
-               if event.key == pygame.K_ESCAPE and ke == pygame.K_ESCAPE:
-                  exit ()
-               if event.key == pygame.K_t and ke == pygame.K_t:
-                  print ('t')
-               if event.key == pygame.K_n and ke == pygame.K_n:
-                  print ('n')
-               if event.key == pygame.K_s and ke == pygame.K_s:
-                  return False
-               if event.key == pygame.K_g and ke == pygame.K_g:
-                  add_gap ()
-               if event.key == pygame.K_p and ke == pygame.K_p:
-                  if pause == False:
-                     pause = True
-                  else:
-                     pause = False
-                  while pause:
-                     running = do_events ([pygame.QUIT, pygame.KEYDOWN],
-                                          [pygame.K_p])
-                     if running == False:
-                        return
-               if event.key == pygame.K_h and ke == pygame.K_h:
-                  add_hazard ()
-               if event.key == pygame.K_a and ke == pygame.K_a:
-                  if jjack.state == 0:
-                     # left state
-                     jjack.state = 1
-               if event.key == pygame.K_d and ke == pygame.K_d:
-                  if jjack.state == 0:
-                     # right state
-                     jjack.state = 2
-               if event.key == pygame.K_w and ke == pygame.K_w:
-                  if jjack.state == 0:
-                     attempt_up_jack ()
-               if event.key == pygame.K_i and ke == pygame.K_i:
-                  if grid == True:
-                     grid = False
-                  else:
-                     grid = True
-               if event.key == pygame.K_RETURN and ke == pygame.K_RETURN:
-                  return False
+      if event.type == pygame.QUIT:
+         exit ()
+      elif event.type == pygame.KEYDOWN:
+         if event.key in keys:
+            if event.key == pygame.K_ESCAPE:
+               exit ()
+            if event.key == pygame.K_t:
+               print ('t')
+            if event.key == pygame.K_n:
+               print ('n')
+            if event.key == pygame.K_s:
+               return False
+            if event.key == pygame.K_g:
+               add_gap ()
+            if event.key == pygame.K_p:
+               if pause == False:
+                  pause = True
+               else:
+                  pause = False
+               while pause:
+                  running = do_events ([pygame.K_p])
+                  if running == False:
+                     return
+            if event.key == pygame.K_h:
+               add_hazard ()
+            if event.key == pygame.K_a:
+               if jjack.state == 0:
+                  # left state
+                  jjack.state = 1
+            if event.key == pygame.K_d:
+               if jjack.state == 0:
+                  # right state
+                  jjack.state = 2
+            if event.key == pygame.K_w:
+               if jjack.state == 0:
+                  attempt_up_jack ()
+            if event.key == pygame.K_i:
+               if grid == True:
+                  grid = False
+               else:
+                  grid = True
+            if event.key == pygame.K_RETURN:
+               return False
    return True
 
 def ballad_loop (screen):
@@ -674,8 +670,7 @@ def ballad_loop (screen):
    j = 0
    sf = frame
    while True:
-      running = do_events ([pygame.QUIT, pygame.KEYDOWN],
-                           [pygame.K_ESCAPE, pygame.K_t, pygame.K_n])
+      running = do_events ([pygame.K_ESCAPE, pygame.K_t, pygame.K_n])
       if (running == False):
          break
       screen.fill (cy)
@@ -887,6 +882,7 @@ def main ():
    # pygame setup
    pygame.init ()
    pygame.mixer.init()
+   pygame.key.set_repeat(100, 100)
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
    pygame.display.set_caption("Jumping Jack")
    clock = pygame.time.Clock ()
