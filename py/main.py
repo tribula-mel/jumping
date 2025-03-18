@@ -334,8 +334,6 @@ def draw_jack_fall (screen):
       jjack.screen_level += 1
       if jjack.screen_level == 7:
          jjack.lives -= 1
-         if jjack.lives == 0:
-            print ('the end')
 
 def draw_jack (screen):
    global jjack
@@ -544,6 +542,7 @@ def finish_game (screen):
    global jjack
    if jjack.lives == 0:
       clear_gaps ()
+      clear_hazards ()
       return True
    return False
 
@@ -709,6 +708,10 @@ def clear_gaps ():
    global right_down_gap
    left_up_gap.clear ()
    right_down_gap.clear ()
+
+def clear_hazards ():
+   global hazard_list
+   hazard_list.clear ()
 
 def add_gap ():
    global left_up_gap
