@@ -554,6 +554,7 @@ def next_level (screen):
       jjack.next = False
       jjack.level += 1
       jjack.screen_level = 7
+      jjack.state = 0
       jjack.pos = (80, 176)
       ballad_loop (screen)
       clear_gaps ()
