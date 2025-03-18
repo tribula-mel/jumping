@@ -1,4 +1,4 @@
 [ ] left/right edges movement
 [ ] high score
-[ ] when running no fall (bug)
+[x] when running no fall (bug)
 [ ] cleanup do_event when all polished

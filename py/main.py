@@ -451,7 +451,7 @@ def attempt_down_jack ():
    rs = down_right_down_gap ()
    # we can reach the fall state from standing or from
    #    stars state
-   if jjack.state == 0 or jjack.state == 4:
+   if jjack.state == 0 or jjack.state == 1 or jjack.state == 2 or jjack.state == 4:
       if ls == True or rs == True:
          # fall state
          jjack.state = 6
