@@ -566,9 +566,8 @@ def game_loop (screen):
    global frame
    init_gaps ()
    jjack = jack_t (0, (80, 176))
-   while do_events ([pygame.K_ESCAPE, pygame.K_s,
-                     pygame.K_g, pygame.K_p,
-                     pygame.K_h, pygame.K_a,
+   while do_events ([pygame.K_ESCAPE,
+                     pygame.K_p, pygame.K_a,
                      pygame.K_d, pygame.K_w,
                      pygame.K_i]):
       screen.fill ((0xd7, 0xd7, 0xd7))
@@ -601,14 +600,6 @@ def do_events (keys):
          if event.key in keys:
             if event.key == pygame.K_ESCAPE:
                exit ()
-            if event.key == pygame.K_t:
-               print ('t')
-            if event.key == pygame.K_n:
-               print ('n')
-            if event.key == pygame.K_s:
-               return False
-            if event.key == pygame.K_g:
-               add_gap ()
             if event.key == pygame.K_p:
                if pause == False:
                   pause = True
@@ -618,8 +609,6 @@ def do_events (keys):
                   running = do_events ([pygame.K_p])
                   if running == False:
                      return
-            if event.key == pygame.K_h:
-               add_hazard ()
             if event.key == pygame.K_a:
                if jjack.state == 0:
                   # left state
@@ -670,7 +659,7 @@ def ballad_loop (screen):
    j = 0
    sf = frame
    while True:
-      running = do_events ([pygame.K_ESCAPE, pygame.K_t, pygame.K_n])
+      running = do_events ([pygame.K_ESCAPE])
       if (running == False):
          break
       screen.fill (cy)
