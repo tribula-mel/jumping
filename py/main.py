@@ -499,6 +499,7 @@ def collision_check ():
       if jy == hy:
          if jx <= hx and (jx + 16) > hx:
             # stars state
+            snds.squash.play ()
             jjack.state = 4
             return
 
@@ -541,6 +542,7 @@ def the_end_loop (screen):
 def finish_game (screen):
    global jjack
    if jjack.lives == 0:
+      snds.game_end.play ()
       clear_gaps ()
       clear_hazards ()
       return True
@@ -549,6 +551,7 @@ def finish_game (screen):
 def next_level (screen):
    global jjack
    if jjack.next == True:
+      snds.new_level.play ()
       jjack.next = False
       jjack.level += 1
       jjack.screen_level = 7
