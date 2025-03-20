@@ -211,7 +211,11 @@ def draw_jack_left (screen):
    global jjack
    global snds
    s_x, s_y = jjack.pos
-   x = x_convert_to_pygame (s_x - 8)
+   if (s_x - 8) < 0:
+      s_x = 240
+   else:
+      s_x -= 8
+   x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
@@ -221,7 +225,7 @@ def draw_jack_left (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
       jjack.sprite_idx = 0
-      jjack.pos = (s_x - 8, s_y)
+      jjack.pos = (s_x, s_y)
 
 def draw_jack_right (screen):
    global jjack
@@ -237,7 +241,11 @@ def draw_jack_right (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
       jjack.sprite_idx = 0
-      jjack.pos = (s_x + 8, s_y)
+      if (s_x + 8) > 240:
+         s_x = 0
+      else:
+         s_x += 8
+      jjack.pos = (s_x, s_y)
 
 def draw_jack_crash (screen):
    global jjack
