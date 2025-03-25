@@ -1,4 +1,9 @@
 [ ] left/right edges movement
-[ ] high score
+    this is only partially fixed
+[ ] polish the game
+[ ] bug: no fall through when at certain line and possibly after crashing
+    with the above line
+[ ] new life
+[x] high score
 [x] when running no fall (bug)
-[ ] cleanup do_event when all polished
+[x] cleanup do_event when all polished
