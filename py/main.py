@@ -212,7 +212,7 @@ def draw_jack_left (screen):
    global snds
    s_x, s_y = jjack.pos
    if (s_x - 8) < 0:
-      s_x = 240
+      s_x = 231
    else:
       s_x -= 8
    x = x_convert_to_pygame (s_x)
@@ -241,7 +241,7 @@ def draw_jack_right (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
       jjack.sprite_idx = 0
-      if (s_x + 8) > 240:
+      if (s_x + 8) > 231:
          s_x = 0
       else:
          s_x += 8
@@ -514,6 +514,8 @@ def collision_check ():
 def the_end_loop (screen):
    global clock
    global jjack
+   global high_score
+   global frame
    cy = set_colour (colour_t.yellow.value)
    cg = set_colour (colour_t.green.value)
    cw = set_colour (colour_t.white.value)
@@ -523,28 +525,43 @@ def the_end_loop (screen):
    cl = set_colour (colour_t.magenta.value)
    jj = font.render ('JUMPING JACK', True, cb)
    ts = 'FINAL SCORE  ' + prep_string (jjack.score)
-   ts2 = 'WITH '
+   ts2 = ' WITH '
    if jjack.level < 10:
       ts2 += ' '
    ts2 += str (jjack.level) + '  HAZARD'
    if jjack.level != 1:
       ts2 += 'S'
+   if jjack.score > high_score:
+      high_score = jjack.score
+      hs = True
+   else:
+      hs = False
    te = 'Press ENTER to replay'
    rs = font.render (ts, True, cb)
    rs2 = font.render (ts2, True, cb)
    re = font.render (te, True, cp)
+   rhsl = font.render ('NEW HIGH', True, cl)
+   rhsw = font.render ('NEW HIGH', True, cw)
    while True:
       running = do_events ([pygame.K_ESCAPE, pygame.K_RETURN])
       if (running == False):
          break
       screen.fill (cy)
-      pygame.draw.rect(screen, cg, convert_to_pygame ([64, 40, 128, 24]))
-      screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (48)))
-      pygame.draw.rect(screen, cc, convert_to_pygame ([40, 96, 176, 40]))
-      screen.blit (rs, (x_convert_to_pygame (56), y_convert_to_pygame (104)))
-      screen.blit (rs2, (x_convert_to_pygame (64), y_convert_to_pygame (120)))
+      pygame.draw.rect(screen, cg, convert_to_pygame ([64, 16, 128, 24]))
+      screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (24)))
+      pygame.draw.rect(screen, cc, convert_to_pygame ([40, 72, 176, 40]))
+      screen.blit (rs, (x_convert_to_pygame (56), y_convert_to_pygame (80)))
+      screen.blit (rs2, (x_convert_to_pygame (56), y_convert_to_pygame (96)))
+      if hs == True:
+         if (frame & 0x8) == 0:
+            pygame.draw.rect(screen, cl, convert_to_pygame ([80, 128, 96, 24]))
+            screen.blit (rhsw, (x_convert_to_pygame (96), y_convert_to_pygame (136)))
+         else:
+            pygame.draw.rect(screen, cw, convert_to_pygame ([80, 128, 96, 24]))
+            screen.blit (rhsl, (x_convert_to_pygame (96), y_convert_to_pygame (136)))
       screen.blit (re, (x_convert_to_pygame (40), y_convert_to_pygame (176)))
       pygame.display.flip ()
+      frame += 1
       clock.tick (35) # limits FPS
 
 def finish_game (screen):
