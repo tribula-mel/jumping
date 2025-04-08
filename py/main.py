@@ -662,11 +662,18 @@ def ballad_loop (screen):
    global ballad_list
    global frame
    rd = False
+   rd2 = False
+   el = False
    cy = set_colour (colour_t.yellow.value)
    cg = set_colour (colour_t.green.value)
    cw = set_colour (colour_t.white.value)
    cb = set_colour (colour_t.black.value)
    cp = set_colour (colour_t.blue.value)
+   if jjack.level == 6 or jjack.level == 11 or jjack.level == 16:
+      el = True
+      cl = set_colour (colour_t.magenta.value)
+      nlw = font.render ('EXTRA LIFE', True, cw)
+      nll = font.render ('EXTRA LIFE', True, cl)
    jj = font.render ('JUMPING JACK', True, cb)
    tl = 'NEXT LEVEL - '
    if jjack.level < 10:
@@ -705,8 +712,17 @@ def ballad_loop (screen):
             pst2 += st2[j]
             r2 = font.render (pst2, True, cp)
             j += 1
-         screen.blit (r2, (x_convert_to_pygame (0), y_convert_to_pygame (136)))
+         elif rd2 == False:
+            rd2 = True
+         screen.blit (r2, (x_convert_to_pygame (0), y_convert_to_pygame (144)))
       screen.blit (r1, (x_convert_to_pygame (0), y_convert_to_pygame (128)))
+      if el == True and rd2 == True:
+         if (frame & 0x8) == 0:
+            pygame.draw.rect(screen, cl, convert_to_pygame ([72, 168, 112, 24]))
+            screen.blit (nlw, (x_convert_to_pygame (88), y_convert_to_pygame (176)))
+         else:
+            pygame.draw.rect(screen, cw, convert_to_pygame ([72, 168, 112, 24]))
+            screen.blit (nll, (x_convert_to_pygame (88), y_convert_to_pygame (176)))
       pygame.display.flip ()
       clock.tick (35) # limits FPS
       frame += 1

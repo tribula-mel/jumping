@@ -18,13 +18,20 @@
 -| $70d6 self modifying code
 
 -| $7007 new level
+   ballad loop
 
 -| $6e22
-   off $0b game status ? $02 == game over
-   			  $00 == game running
+   off $0b game status
+      $00 == game running
+      $01 == next level
+         put $01 into this location and you move to the next level
+      $02 == game over
    off $0c lives
    off $0d number of holes ?
    off $0e level number (starting from $0)
+
+-| $6fd2 code at this location decided either to continue running the level
+      or move to the next one
 
 -| $7f06 call $7db2 prints the verses
 
