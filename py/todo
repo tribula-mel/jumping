@@ -1,9 +1,6 @@
 [ ] left/right edges movement
     this is only partially fixed
 [ ] polish the game
-[ ] bug: no fall through when at certain line and possibly after crashing
-    with the above line
-[x] new life
 [ ] consider
     [ ] separating events and drawing into two threads
     [ ] the events could be represented with an event queue; there could be

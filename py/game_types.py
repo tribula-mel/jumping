@@ -38,8 +38,6 @@ class jack_t:
       self.sprite_idx   = 0
       # speccy graphical coordinates
       self.pos          = pos
-      # starting position: botttom of the screen
-      self.screen_level = 7
       self.lives        = 6
       self.score        = 0
       self.level        = 0

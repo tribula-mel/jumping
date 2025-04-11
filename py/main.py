@@ -261,7 +261,7 @@ def draw_jack_crash (screen):
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
       jjack.sprite_idx = 0
-      if jjack.screen_level == 7:
+      if s_y == 176:
          jjack.lives -= 1
 
 def draw_jack_stars (screen):
@@ -294,7 +294,7 @@ def draw_jack_jump (screen):
       jjack.state = 7
       jjack.sprite_idx = 0
       jjack.score += 5 * (jjack.level + 1)
-      if jjack.screen_level == 0:
+      if s_y == 8:
          jjack.next = True
 
 def draw_jack_through (screen):
@@ -309,7 +309,6 @@ def draw_jack_through (screen):
       jjack.state = 0
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y - 24)
-      jjack.screen_level -= 1
       add_gap ()
 
 def draw_jack_ledge (screen):
@@ -339,8 +338,7 @@ def draw_jack_fall (screen):
       jjack.state = 4
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y + 24)
-      jjack.screen_level += 1
-      if jjack.screen_level == 7:
+      if s_y == 176:
          jjack.lives -= 1
 
 def draw_jack (screen):
@@ -367,42 +365,24 @@ def draw_jack (screen):
 def up_left_up_gap ():
    global jjack
    global left_up_gap
-   jump_through = False
-   sl = jjack.screen_level
+   jx, jy = jjack.pos
    for i in range (0, len (left_up_gap)):
       l1, l2, l3 = left_up_gap[i]
-      yl1 = int (l1 / 256)
-      yl2 = int (l2 / 256)
-      if (yl1 == yl2 and yl2 == sl) or (yl1 != yl2 and yl1 == (sl - 1)):
-         jx, jy = jjack.pos
-         xl1 = l1 % 256
-         xl2 = l2 % 256
-         # print ('up jack x/y, left gap x1/x2', jx, jy, xl1, xl2)
-         if (xl1 == (jx + 8)) or (xl2 == (jx + 8)):
-            # print ('left jump through')
-            jump_through = True
-            break
-   return jump_through
+      jl = 256 * int (jy / 24) + jx
+      if l1 <= jl and jl <= l3:
+         return True
+   return False
 
 def up_right_down_gap ():
    global jjack
    global right_down_gap
-   jump_through = False
-   sl = jjack.screen_level
+   jx, jy = jjack.pos
    for i in range (0, len (right_down_gap)):
       l1, l2, l3 = right_down_gap[i]
-      yl2 = int (l2 / 256)
-      yl3 = int (l3 / 256)
-      if (yl2 == yl3 and yl2 == sl) or (yl2 != yl3 and yl3 == sl):
-         jx, jy = jjack.pos
-         xl2 = l2 % 256
-         xl3 = l3 % 256
-         # print ('up jack x/y, right gap x2/x3', jx, jy, xl2, xl3)
-         if (xl3 == jx) or (xl2 == jx):
-            # print ('right jump through')
-            jump_through = True
-            break
-   return jump_through
+      jl = 256 * int (jy / 24) + jx
+      if l1 <= jl and jl <= l3:
+         return True
+   return False
 
 def attempt_up_jack ():
    ls = up_left_up_gap ()
@@ -417,42 +397,24 @@ def attempt_up_jack ():
 def down_left_up_gap ():
    global jjack
    global left_up_gap
-   fall_down = False
-   sl = jjack.screen_level
+   jx, jy = jjack.pos
    for i in range (0, len (left_up_gap)):
       l1, l2, l3 = left_up_gap[i]
-      yl1 = int (l1 / 256)
-      yl2 = int (l2 / 256)
-      if ((yl1 - 1) == sl and (yl2 - 1) == sl):
-         jx, jy = jjack.pos
-         xl1 = l1 % 256
-         xl2 = l2 % 256
-         # print ('down jack x/y, left gap x1/x2', jx, jy, xl1, xl2)
-         if xl1 == jx and xl2 == (jx + 8):
-            # print ('left down fall')
-            fall_down = True
-            break
-   return fall_down
+      jl = 256 * (int (jy / 24) + 1) + jx
+      if l1 <= jl and jl <= l3:
+         return True
+   return False
 
 def down_right_down_gap ():
    global jjack
    global right_down_gap
-   fall_down = False
-   sl = jjack.screen_level
+   jx, jy = jjack.pos
    for i in range (0, len (right_down_gap)):
       l1, l2, l3 = right_down_gap[i]
-      yl2 = int (l2 / 256)
-      yl3 = int (l3 / 256)
-      if ((yl2 - 1) == sl and (yl3 - 1) == sl):
-         jx, jy = jjack.pos
-         xl2 = l2 % 256
-         xl3 = l3 % 256
-         # print ('down jack x/y, right gap x2/x3', jx, jy, xl2, xl3)
-         if xl2 == jx and xl3 == (jx + 8):
-            # print ('right down fall')
-            fall_down = True
-            break
-   return fall_down
+      jl = 256 * (int (jy / 24) + 1) + jx
+      if l1 <= jl and jl <= l3:
+         return True
+   return False
 
 def attempt_down_jack ():
    ls = down_left_up_gap ()
@@ -579,13 +541,12 @@ def next_level (screen):
       snds.new_level.play ()
       jjack.next = False
       jjack.level += 1
-      jjack.screen_level = 7
       jjack.state = 0
       jjack.pos = (80, 176)
       ballad_loop (screen)
       clear_gaps ()
       init_gaps ()
-      add_hazard ()
+      create_hazards (jjack.level)
 
 def game_loop (screen):
    global pause
@@ -613,7 +574,7 @@ def game_loop (screen):
       draw_grid (screen)
       pygame.display.flip ()
       frame += 1
-      clock.tick (15) # limits FPS
+      clock.tick (35) # limits FPS
       next_level (screen)
 
 def do_events (keys):
@@ -778,17 +739,20 @@ def gap_pos_to_speccy_x_y (position):
 def move_gaps ():
    global left_up_gap
    global right_down_gap
+   global frame
+   #if frame & 0x3 != 0:
+   #   return
    for i in range (0, len (left_up_gap)):
       x, y, z = left_up_gap[i]
-      x = (x - 8) & 0x7ff
-      y = (y - 8) & 0x7ff
-      z = (z - 8) & 0x7ff
+      x = (x - 2) & 0x7ff
+      y = (y - 2) & 0x7ff
+      z = (z - 2) & 0x7ff
       left_up_gap[i] = [x, y, z]
    for i in range (0, len (right_down_gap)):
       x, y, z = right_down_gap[i]
-      x = (x + 8) % 2048
-      y = (y + 8) % 2048
-      z = (z + 8) % 2048
+      x = (x + 2) % 2048
+      y = (y + 2) % 2048
+      z = (z + 2) % 2048
       right_down_gap[i] = [x, y, z]
 
 def draw_gaps (screen):
@@ -829,19 +793,18 @@ def draw_gaps (screen):
       #xl3 = l3 % 256
       #print ('gap x2/x3', xl2, xl3)
 
-def add_hazard ():
+def create_hazards (num):
    global hazard_list
-   if len (hazard_list) < 20:
-      # get hazard sprite (random)
-      i = get_index ()
-      # get hazard colour (random)
-      c = get_colour ()
-      p = get_position ()
-      h = hazard_t (i - 1, c, p)
-      # print ('hazard index ', i - 1)
-      # print ('hazard colour ', c)
-      # print ('hazard position ', p)
-      hazard_list.append (h)
+   hazard_list.clear ()
+   if num < 20:
+      for i in range (0, num):
+         # get hazard sprite (random)
+         i = get_index ()
+         # get hazard colour (random)
+         c = get_colour ()
+         p = get_position ()
+         h = hazard_t (i - 1, c, p)
+         hazard_list.append (h)
 
 def draw_hazards (screen):
    global hazard_list
