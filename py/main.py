@@ -338,7 +338,7 @@ def draw_jack_fall (screen):
       jjack.state = 4
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y + 24)
-      if s_y == 176:
+      if s_y + 24 == 176:
          jjack.lives -= 1
 
 def draw_jack (screen):
