@@ -369,7 +369,7 @@ def up_left_up_gap ():
    for i in range (0, len (left_up_gap)):
       l1, l2, l3 = left_up_gap[i]
       jl = 256 * int (jy / 24) + jx
-      if l1 <= jl and jl <= l3:
+      if l1 - 3 <= jl and jl < l3 - 3:
          return True
    return False
 
@@ -380,7 +380,7 @@ def up_right_down_gap ():
    for i in range (0, len (right_down_gap)):
       l1, l2, l3 = right_down_gap[i]
       jl = 256 * int (jy / 24) + jx
-      if l1 <= jl and jl <= l3:
+      if l1 - 3 <= jl and jl < l3 - 3:
          return True
    return False
 
@@ -826,15 +826,16 @@ def move_hazards ():
       h = hazard_list[i]
       n_sprites = len (hazards[h.index])
       h.sprite_idx = (h.sprite_idx + 1) % n_sprites
-      x, y = h.pos
-      x -= 8
-      if x < 0:
-         x = 255
-         y -= 24
-         if y < 8:
-            x = 231
-            y = 152
-      h.pos = (x, y)
+      if h.sprite_idx == 2 or h.sprite_idx == 0:
+         x, y = h.pos
+         x -= 8
+         if x < 0:
+            x = 255
+            y -= 24
+            if y < 8:
+               x = 231
+               y = 152
+         h.pos = (x, y)
 
 def prep_string (num):
    st = ''
