@@ -1,7 +1,7 @@
 [ ] polish the game
     [ ] left/right edges movement
         this is only partially fixed
-    [ ] slow down the hazards
+    [x] slow down the hazards
     [ ] introduce delay for different jack sequences
 
 [ ] consider

@@ -562,7 +562,8 @@ def game_loop (screen):
       draw_line (screen)
       draw_lives (screen)
       move_gaps ()
-      move_hazards ()
+      if frame & 0x1 == 0:
+         move_hazards ()
       draw_gaps (screen)
       draw_hazards (screen)
       draw_score (screen)
