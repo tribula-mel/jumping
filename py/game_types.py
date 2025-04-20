@@ -35,7 +35,7 @@ class jack_t:
       #    7 = second part of the jump, 8 = second part of the fall
       self.state        = state
       # index into the particular jack sprite set
-      self.sprite_idx   = 0
+      self.sprite_idx   = -1
       # speccy graphical coordinates
       self.pos          = pos
       self.lives        = 6

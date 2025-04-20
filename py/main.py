@@ -156,7 +156,7 @@ def draw_element (screen, element, x, y, colour):
                # True part of the if is jumping jack specific
                if x > (x_res * scale - 1):
                   pygame.draw.rect(screen, colour,
-                     [x%(x_res*scale), y+y_convert_to_pygame (24), w, h])
+                     [x%(x_res*scale), (y+y_convert_to_pygame (24))%(y_res*scale), w, h])
                else:
                   pygame.draw.rect(screen, colour, [x, y, w, h])
             x += DOTS_PER_PIXEL_X * scale
@@ -830,10 +830,10 @@ def move_hazards ():
          x, y = h.pos
          x -= 8
          if x < 0:
-            x = 255
+            x &= 0xff
             y -= 24
             if y < 8:
-               x = 231
+               x = 232
                y = 152
          h.pos = (x, y)
 

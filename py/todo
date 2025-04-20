@@ -1,12 +1,17 @@
-[ ] left/right edges movement
-    this is only partially fixed
 [ ] polish the game
+    [ ] left/right edges movement
+        this is only partially fixed
+    [ ] slow down the hazards
+    [ ] introduce delay for different jack sequences
+
 [ ] consider
     [ ] separating events and drawing into two threads
-    [ ] the events could be represented with an event queue; there could be
-        events for keyboard presses, time pass, collision, game over, next
-        level, fall through; the main consumer the draw thread
-    [ ] draw thread could be suppported by a queue as well; an element could
-        have a sprite to update, its new position
-    [ ] in any case it would be good to separate new sprite position from
-        the current one
+    [ ] the events could be represented with an event queue;
+        there could be events for keyboard presses, time pass,
+        collision, game over, next level, fall through;
+        the main consumer the draw thread
+    [ ] draw thread could be suppported by a queue as well;
+        an element could have a sprite to update,
+        its new position
+    [ ] in any case it would be good to separate new sprite
+        position from the current one
