@@ -1840,6 +1840,8 @@ jack_se = [
       (jack_f0, jack_f1, jack_f2, jack_f3),
       (jack_j4, jack_j5, jack_j6),
       (jack_f4, jack_f5, jack_f6, jack_f7),
+      (jack_lrls, jack_lrlc, jack_lrls, jack_lrlc),
+      (jack_rrls, jack_rrlc, jack_rrls, jack_rrlc),
 ]
 
 line_brick = sprite_t (0x01, 0x02, 0x00,

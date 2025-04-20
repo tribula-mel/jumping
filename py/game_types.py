@@ -23,7 +23,7 @@ class hazard_t:
       self.index      = index
       self.colour     = colour
       # index into the particular hazard sprite set
-      self.sprite_idx = 0
+      self.sprite_idx = -1
       # speccy graphical coordinates
       self.pos        = pos
 
@@ -32,10 +32,13 @@ class jack_t:
       # index into the jack_se list
       #    0 = standing, 1 = moving left, 2 = moving right
       #    3 = jump, 4 = stars, 5 = crash, 6 = fall
-      #    7 = second part of the jump, 8 = second part of the fall
+      #    7 = second part of the jump,
+      #    8 = second part of the fall
+      #    9 = moving thro left edge
+      #   10 = moving thro right edge
       self.state        = state
       # index into the particular jack sprite set
-      self.sprite_idx   = -1
+      self.sprite_idx   = 0
       # speccy graphical coordinates
       self.pos          = pos
       self.lives        = 6

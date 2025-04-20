@@ -141,7 +141,7 @@ def set_colour (colour):
       # black
       return (0x00, 0x00, 0x00)
 
-def draw_element (screen, element, x, y, colour):
+def draw_element (screen, element, x, y, colour, dnuy = False):
    global x_res
    global scale
    index = 0
@@ -154,9 +154,13 @@ def draw_element (screen, element, x, y, colour):
                w = DOTS_PER_PIXEL_X * scale
                h = DOTS_PER_PIXEL_Y * scale
                # True part of the if is jumping jack specific
-               if x > (x_res * scale - 1):
+               if dnuy == True and x > (x_res * scale - 1):
                   pygame.draw.rect(screen, colour,
-                     [x%(x_res*scale), (y+y_convert_to_pygame (24))%(y_res*scale), w, h])
+                     [x%(x_res*scale), y, w, h])
+               elif dnuy == False and x > (x_res * scale - 1):
+                  pygame.draw.rect(screen, colour,
+                     [x%(x_res*scale),
+                      (y+y_convert_to_pygame (24))%(y_res*scale), w, h])
                else:
                   pygame.draw.rect(screen, colour, [x, y, w, h])
             x += DOTS_PER_PIXEL_X * scale
@@ -210,15 +214,20 @@ def draw_jack_standing (screen):
 def draw_jack_left (screen):
    global jjack
    global snds
+   dnuy = False
    s_x, s_y = jjack.pos
    if (s_x - 8) < 0:
-      s_x = 231
-   else:
-      s_x -= 8
+      jjack.state = 9
+      dnuy = True
+   if jjack.state == 9:
+      if jjack.sprite_idx == 2:
+         s_x = (s_x - 8) & 0xff
+         jjack.pos = (s_x, s_y)
+   s_x = (s_x - 8) & 0xff
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
-   draw_element (screen, sprite, x, y, set_colour (0x00))
+   draw_element (screen, sprite, x, y, set_colour (0x00), dnuy)
    if jjack.sprite_idx == 0:
       snds.run.play ()
    jjack.sprite_idx += 1
@@ -230,11 +239,19 @@ def draw_jack_left (screen):
 def draw_jack_right (screen):
    global jjack
    global snds
+   dnuy = False
    s_x, s_y = jjack.pos
+   if (s_x + 16) > 255:
+      jjack.state = 10
+      dnuy = True
+   if jjack.state == 10:
+      if jjack.sprite_idx == 2:
+         s_x += 8
+         jjack.pos = (s_x, s_y)
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
-   draw_element (screen, sprite, x, y, set_colour (0x00))
+   draw_element (screen, sprite, x, y, set_colour (0x00), dnuy)
    if jjack.sprite_idx == 0:
       snds.run.play ()
    jjack.sprite_idx += 1
@@ -345,9 +362,9 @@ def draw_jack (screen):
    global jjack
    if jjack.state == 0:
       draw_jack_standing (screen)
-   elif jjack.state == 1:
+   elif jjack.state == 1 or jjack.state == 9:
       draw_jack_left (screen)
-   elif jjack.state == 2:
+   elif jjack.state == 2 or jjack.state == 10:
       draw_jack_right (screen)
    elif jjack.state == 3:
       draw_jack_jump (screen)

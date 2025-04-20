@@ -1,8 +1,9 @@
 [ ] polish the game
-    [ ] left/right edges movement
-        this is only partially fixed
+    [x] left/right edges movement
     [x] slow down the hazards
     [ ] introduce delay for different jack sequences
+    [ ] line crash changes the background colour
+    [ ] delay hazards re-entrance
 
 [ ] consider
     [ ] separating events and drawing into two threads
