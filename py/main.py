@@ -15,6 +15,8 @@ scale = 1
 DOTS_PER_PIXEL_X = 1
 DOTS_PER_PIXEL_Y = 1
 
+MAIN_DELAY = 6
+
 # speccy's original screen is 256*192 (32x24 chars)
 x_res = DOTS_PER_PIXEL_X * 256
 y_res = DOTS_PER_PIXEL_Y * 192
@@ -292,6 +294,10 @@ def draw_jack_stars (screen):
    if jjack.sprite_idx == 0:
       snds.stars.play ()
    jjack.sprite_idx += 1
+   if jjack.timeout != 0:
+      if jjack.sprite_idx >= len (jack_se[jjack.state]):
+         jjack.sprite_idx = 0
+      return
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
       jjack.sprite_idx = 0
@@ -371,12 +377,14 @@ def draw_jack (screen):
    elif jjack.state == 4:
       draw_jack_stars (screen)
    elif jjack.state == 5:
+      jjack.timeout += 3 * MAIN_DELAY
       draw_jack_crash (screen)
    elif jjack.state == 6:
       draw_jack_ledge (screen)
    elif jjack.state == 7:
       draw_jack_through (screen)
    elif jjack.state == 8:
+      jjack.timeout += MAIN_DELAY
       draw_jack_fall (screen)
 
 def up_left_up_gap ():
@@ -486,10 +494,11 @@ def collision_check ():
          continue
       hx, hy = hazard_list[i].pos
       if jy == hy:
-         if jx <= hx and (jx + 16) > hx:
+         if (jx >= hx and jx <= (hx + 15)) or (hx >= jx and hx <= (jx + 7)):
             # stars state
             snds.squash.play ()
             jjack.state = 4
+            jjack.timeout += MAIN_DELAY
             return
 
 def the_end_loop (screen):
@@ -570,11 +579,14 @@ def next_level (screen):
 def ticker ():
    global hazard_list
    global frame
+   global jjack
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
       if h.delay != 0:
          h.delay -= 1
    frame += 1
+   if jjack.timeout != 0:
+      jjack.timeout -= 1
 
 def game_loop (screen):
    global pause

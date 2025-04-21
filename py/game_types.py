@@ -47,6 +47,7 @@ class jack_t:
       self.score        = 0
       self.level        = 0
       self.next         = False
+      self.timeout      = 0
 
 class sounds_t:
    def __init__ (self):
