@@ -633,7 +633,7 @@ def game_loop (screen):
       draw_grid (screen)
       pygame.display.flip ()
       ticker ()
-      clock.tick (40) # limits FPS
+      clock.tick (35) # limits FPS
       next_level (screen)
 
 def do_events (keys):
