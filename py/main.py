@@ -10,7 +10,7 @@ from game_types import sounds_t
 from gfx_sprites import *
 from ballad import ballad_list
 
-scale = 2
+scale = 1
 
 DOTS_PER_PIXEL_X = 1
 DOTS_PER_PIXEL_Y = 1
@@ -482,6 +482,8 @@ def collision_check ():
       return
    jx, jy = jjack.pos
    for i in range (0, hl):
+      if hazard_list[i].delay != 0:
+         continue
       hx, hy = hazard_list[i].pos
       if jy == hy:
          if jx <= hx and (jx + 16) > hx:
@@ -565,6 +567,15 @@ def next_level (screen):
       init_gaps ()
       create_hazards (jjack.level)
 
+def ticker ():
+   global hazard_list
+   global frame
+   for i in range (0, len (hazard_list)):
+      h = hazard_list[i]
+      if h.delay != 0:
+         h.delay -= 1
+   frame += 1
+
 def game_loop (screen):
    global pause
    global jjack
@@ -591,7 +602,7 @@ def game_loop (screen):
          return
       draw_grid (screen)
       pygame.display.flip ()
-      frame += 1
+      ticker ()
       clock.tick (35) # limits FPS
       next_level (screen)
 
@@ -830,6 +841,8 @@ def draw_hazards (screen):
    global hazards
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
+      if h.delay != 0:
+         continue
       sprite = hazards[h.index][h.sprite_idx]
       x, y = h.pos
       pygame_x = x_convert_to_pygame (x)
@@ -843,6 +856,8 @@ def move_hazards ():
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
       n_sprites = len (hazards[h.index])
+      if h.delay != 0:
+         continue
       h.sprite_idx = (h.sprite_idx + 1) % n_sprites
       if h.sprite_idx == 2 or h.sprite_idx == 0:
          x, y = h.pos
@@ -853,6 +868,9 @@ def move_hazards ():
             if y < 8:
                x = 232
                y = 152
+               # re-entrance on the bottom right corner is going to be
+               #    delayed for 16 frames
+               h.delay = 128
          h.pos = (x, y)
 
 def prep_string (num):
@@ -899,6 +917,16 @@ def main ():
    global scale
    # pygame setup
    pygame.init ()
+   # get display information
+   info = pygame.display.Info()
+   width = info.current_w
+   height = info.current_h
+   scale = int (height / 192)
+   if int (width / scale) >= 256:
+      scale -= 2
+   else:
+      scale = 1
+   print (scale)
    pygame.mixer.init()
    pygame.key.set_repeat(100, 100)
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))

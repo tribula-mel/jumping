@@ -3,7 +3,7 @@
     [x] slow down the hazards
     [ ] introduce delay for different jack sequences
     [ ] line crash changes the background colour
-    [ ] delay hazards re-entrance
+    [x] delay hazards re-entrance
 
 [ ] consider
     [ ] separating events and drawing into two threads

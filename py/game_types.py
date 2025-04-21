@@ -26,6 +26,8 @@ class hazard_t:
       self.sprite_idx = -1
       # speccy graphical coordinates
       self.pos        = pos
+      # entrance delay
+      self.delay      = 0
 
 class jack_t:
    def __init__ (self, state, pos):
