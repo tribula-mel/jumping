@@ -30,7 +30,7 @@ class hazard_t:
       self.delay      = 0
 
 class jack_t:
-   def __init__ (self, state, pos):
+   def __init__ (self, state, pos, delay):
       # index into the jack_se list
       #    0 = standing, 1 = moving left, 2 = moving right
       #    3 = jump, 4 = stars, 5 = crash, 6 = fall
@@ -48,6 +48,7 @@ class jack_t:
       self.level        = 0
       self.next         = False
       self.timeout      = 0
+      self.delay        = delay
 
 class sounds_t:
    def __init__ (self):

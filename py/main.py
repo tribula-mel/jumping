@@ -15,7 +15,8 @@ scale = 1
 DOTS_PER_PIXEL_X = 1
 DOTS_PER_PIXEL_Y = 1
 
-MAIN_DELAY = 6
+MAIN_TIMEOUT = 6
+RELOAD_DELAY = 1
 
 # speccy's original screen is 256*192 (32x24 chars)
 x_res = DOTS_PER_PIXEL_X * 256
@@ -266,6 +267,13 @@ def draw_jack_right (screen):
          s_x += 8
       jjack.pos = (s_x, s_y)
 
+def jack_ticker ():
+   global jjack
+   if jjack.delay == 0:
+      jjack.delay = RELOAD_DELAY
+   else:
+      jjack.delay -= 1
+
 def draw_jack_crash (screen):
    global jjack
    global snds
@@ -276,12 +284,14 @@ def draw_jack_crash (screen):
    draw_element (screen, sprite, x, y, set_colour (0x00))
    if jjack.sprite_idx == 0:
       snds.line_crash.play ()
+   #if jjack.delay == 0:
    jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
       jjack.sprite_idx = 0
       if s_y == 176:
          jjack.lives -= 1
+   #jack_ticker ()
 
 def draw_jack_stars (screen):
    global jjack
@@ -312,13 +322,15 @@ def draw_jack_jump (screen):
    draw_element (screen, sprite, x, y, set_colour (0x00))
    if jjack.sprite_idx == 0:
       snds.jump_thro.play ()
-   jjack.sprite_idx += 1
+   if jjack.delay == 0:
+      jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 7
       jjack.sprite_idx = 0
       jjack.score += 5 * (jjack.level + 1)
       if s_y == 8:
          jjack.next = True
+   jack_ticker ()
 
 def draw_jack_through (screen):
    global jjack
@@ -327,12 +339,14 @@ def draw_jack_through (screen):
    y = y_convert_to_pygame (s_y - 24)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   jjack.sprite_idx += 1
+   if jjack.delay == 0:
+      jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y - 24)
       add_gap ()
+   jack_ticker ()
 
 def draw_jack_ledge (screen):
    global jjack
@@ -344,10 +358,12 @@ def draw_jack_ledge (screen):
    draw_element (screen, sprite, x, y, set_colour (0x00))
    if jjack.sprite_idx == 0:
       snds.fall_thro.play ()
-   jjack.sprite_idx += 1
+   if jjack.delay == 0:
+      jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 8
       jjack.sprite_idx = 0
+   jack_ticker ()
 
 def draw_jack_fall (screen):
    global jjack
@@ -356,13 +372,15 @@ def draw_jack_fall (screen):
    y = y_convert_to_pygame (s_y + 8)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   jjack.sprite_idx += 1
+   if jjack.delay == 0:
+      jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
       jjack.sprite_idx = 0
       jjack.pos = (s_x, s_y + 24)
       if s_y + 24 == 176:
          jjack.lives -= 1
+   jack_ticker ()
 
 def draw_jack (screen):
    global jjack
@@ -377,14 +395,14 @@ def draw_jack (screen):
    elif jjack.state == 4:
       draw_jack_stars (screen)
    elif jjack.state == 5:
-      jjack.timeout += 3 * MAIN_DELAY
+      jjack.timeout += 3 * MAIN_TIMEOUT
       draw_jack_crash (screen)
    elif jjack.state == 6:
       draw_jack_ledge (screen)
    elif jjack.state == 7:
       draw_jack_through (screen)
    elif jjack.state == 8:
-      jjack.timeout += MAIN_DELAY
+      jjack.timeout += MAIN_TIMEOUT
       draw_jack_fall (screen)
 
 def up_left_up_gap ():
@@ -498,7 +516,7 @@ def collision_check ():
             # stars state
             snds.squash.play ()
             jjack.state = 4
-            jjack.timeout += MAIN_DELAY
+            jjack.timeout += MAIN_TIMEOUT
             return
 
 def the_end_loop (screen):
@@ -593,7 +611,7 @@ def game_loop (screen):
    global jjack
    global frame
    init_gaps ()
-   jjack = jack_t (0, (80, 176))
+   jjack = jack_t (0, (80, 176), RELOAD_DELAY)
    while do_events ([pygame.K_ESCAPE,
                      pygame.K_p, pygame.K_a,
                      pygame.K_d, pygame.K_w,
@@ -615,7 +633,7 @@ def game_loop (screen):
       draw_grid (screen)
       pygame.display.flip ()
       ticker ()
-      clock.tick (35) # limits FPS
+      clock.tick (40) # limits FPS
       next_level (screen)
 
 def do_events (keys):
