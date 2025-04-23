@@ -958,7 +958,7 @@ def main ():
       scale = 1
    print (scale)
    pygame.mixer.init()
-   pygame.key.set_repeat(100, 100)
+   pygame.key.set_repeat(50, 100)
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
    pygame.display.set_caption("Jumping Jack")
    clock = pygame.time.Clock ()
