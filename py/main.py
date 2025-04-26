@@ -2,6 +2,7 @@
 
 import pygame
 import random
+import threading
 
 from game_types import colour_t
 from game_types import hazard_t
@@ -954,9 +955,10 @@ def main ():
    scale = int (height / 192)
    if int (width / scale) >= 256:
       scale -= 2
+      if (scale <= 0):
+         scale = 1
    else:
       scale = 1
-   print (scale)
    pygame.mixer.init()
    pygame.key.set_repeat(50, 100)
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
@@ -965,6 +967,7 @@ def main ():
    font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
    init_sounds ()
    init_hazards ()
+   thread = threading.Thread(target=thread_function, args=("1",))
    while True:
       game_loop (screen)
       the_end_loop (screen)
