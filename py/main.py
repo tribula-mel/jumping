@@ -2,7 +2,7 @@
 
 import pygame
 import random
-import threading
+#import threading
 
 from game_types import colour_t
 from game_types import hazard_t
@@ -634,7 +634,7 @@ def game_loop (screen):
       draw_grid (screen)
       pygame.display.flip ()
       ticker ()
-      clock.tick (35) # limits FPS
+      clock.tick (38) # limits FPS
       next_level (screen)
 
 def do_events (keys):
@@ -967,7 +967,7 @@ def main ():
    font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
    init_sounds ()
    init_hazards ()
-   thread = threading.Thread(target=thread_function, args=("1",))
+   #thread = threading.Thread(target=thread_function, args=("1",))
    while True:
       game_loop (screen)
       the_end_loop (screen)
