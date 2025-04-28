@@ -1,5 +1,9 @@
 [ ] polish the game
     [ ] line crash changes the background colour
+    [ ] hazards creation polish
+    [ ] delay new level so sound can finish
+    [ ] delay game over as well
+    [ ] sound polishing
 
 [ ] consider
     [ ] separating events and drawing into two threads
