@@ -778,17 +778,30 @@ def clear_hazards ():
    global hazard_list
    hazard_list.clear ()
 
+def h_l_add_range (tl, lw, hh):
+   for i in range (lw, hh):
+      tl.append (i)
+
+def h_add_gap (gap_list):
+   gap_exc_list = []
+   for gap in gap_list:
+      x, y, z = gap
+      h_l_add_range (gap_exc_list, (x -  24) % 2048, (x +  48) % 2048)
+      h_l_add_range (gap_exc_list, (x + 232) % 2048, (x + 304) % 2048)
+      h_l_add_range (gap_exc_list, (x - 280) % 2048, (x - 208) % 2048)
+   while True:
+      init = random.randint (0, 2047)
+      if init not in gap_exc_list:
+         gap_list.append ([init, init+8, init+16])
+         return
+
 def add_gap ():
    global left_up_gap
    global right_down_gap
-   mask = -1
-   mask ^= 0x7
-   init = random.randint (0, 2023)
-   init &= mask
    if (len (right_down_gap) < 4):
-      right_down_gap.append ([init, init+8, init+16])
+      h_add_gap (right_down_gap)
    elif (len (left_up_gap) < 4):
-      left_up_gap.append ([init, init+8, init+16])
+      h_add_gap (left_up_gap)
 
 def gap_pos_to_speccy_x_y (position):
    # each line has 256 positions, four dots per position
