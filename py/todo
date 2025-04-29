@@ -1,8 +1,8 @@
 [ ] polish the game
     [ ] line crash changes the background colour
     [ ] hazards creation polish
-    [ ] delay new level so sound can finish
-    [ ] delay game over as well
+    [x] delay new level so sound can finish
+    [x] delay game over as well
     [ ] sound polishing
 
 [ ] consider

@@ -3,6 +3,7 @@
 import pygame
 import random
 #import threading
+import time
 
 from game_types import colour_t
 from game_types import hazard_t
@@ -577,6 +578,7 @@ def finish_game (screen):
    global jjack
    if jjack.lives == 0:
       snds.game_end.play ()
+      time.sleep (2)
       clear_gaps ()
       clear_hazards ()
       return True
@@ -590,6 +592,7 @@ def next_level (screen):
       jjack.level += 1
       jjack.state = 0
       jjack.pos = (80, 176)
+      time.sleep (2)
       ballad_loop (screen)
       clear_gaps ()
       init_gaps ()
