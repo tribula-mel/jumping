@@ -781,20 +781,25 @@ def clear_hazards ():
    global hazard_list
    hazard_list.clear ()
 
-def h_l_add_range (tl, lw, hh):
-   for i in range (lw, hh):
-      tl.append (i)
+def h_l_add_range (tl, re):
+   tl.append (re)
+
+def h_r_in_list (tl, query):
+   for tr in tl:
+      if query in tr:
+         return True
+   return False
 
 def h_add_gap (gap_list):
    gap_exc_list = []
    for gap in gap_list:
       x, y, z = gap
-      h_l_add_range (gap_exc_list, (x -  24) % 2048, (x +  48) % 2048)
-      h_l_add_range (gap_exc_list, (x + 232) % 2048, (x + 304) % 2048)
-      h_l_add_range (gap_exc_list, (x - 280) % 2048, (x - 208) % 2048)
+      h_l_add_range (gap_exc_list, range ((x- 47)%2048, (x+ 48)%2048))
+      h_l_add_range (gap_exc_list, range ((x+209)%2048, (x+304)%2048))
+      h_l_add_range (gap_exc_list, range ((x-303)%2048, (x-208)%2048))
    while True:
-      init = random.randint (0, 2047)
-      if init not in gap_exc_list:
+      init = random.randint (0, 2023)
+      if h_r_in_list (gap_exc_list, init) == False:
          gap_list.append ([init, init+8, init+16])
          return
 
