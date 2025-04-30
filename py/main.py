@@ -2,7 +2,6 @@
 
 import pygame
 import random
-#import threading
 import time
 
 from game_types import colour_t
@@ -75,6 +74,7 @@ def init_hazards ():
    next_hazard = random.randint (1, 10)
    next_colour = random.randint (1, 6)
    next_position = random.randint (1, 31)
+   create_hazards ()
 
 def get_index ():
    global next_hazard
@@ -104,7 +104,7 @@ def get_position ():
    # each hazard gets 8 chars space
    #    and a bit of randomness
    cal = next_position - 1
-   x = 8 * ( ( (8*cal) & 0x1f) + random.randint (0, 5) )
+   x = 8 * ( ( (8*cal) & 0x1f ) + random.randint (0, 5) )
    y = 24 * (int (cal / 4)) + 8
    return (x, y)
 
@@ -286,14 +286,12 @@ def draw_jack_crash (screen):
    draw_element (screen, sprite, x, y, set_colour (0x00))
    if jjack.sprite_idx == 0:
       snds.line_crash.play ()
-   #if jjack.delay == 0:
    jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
       jjack.sprite_idx = 0
       if s_y == 176:
          jjack.lives -= 1
-   #jack_ticker ()
 
 def draw_jack_stars (screen):
    global jjack
@@ -510,6 +508,8 @@ def collision_check ():
       return
    jx, jy = jjack.pos
    for i in range (0, hl):
+      if hazard_list[i].active == False:
+         return
       if hazard_list[i].delay != 0:
          continue
       hx, hy = hazard_list[i].pos
@@ -580,7 +580,8 @@ def finish_game (screen):
       snds.game_end.play ()
       time.sleep (2)
       clear_gaps ()
-      clear_hazards ()
+      #clear_hazards ()
+      init_hazards ()
       return True
    return False
 
@@ -596,7 +597,7 @@ def next_level (screen):
       ballad_loop (screen)
       clear_gaps ()
       init_gaps ()
-      create_hazards (jjack.level)
+      add_hazard (jjack.level)
 
 def ticker ():
    global hazard_list
@@ -631,13 +632,13 @@ def game_loop (screen):
       draw_score (screen)
       attempt_down_jack ()
       draw_jack (screen)
-      collision_check ()
-      if True == finish_game (screen):
-         return
       draw_grid (screen)
       pygame.display.flip ()
       ticker ()
       clock.tick (38) # limits FPS
+      collision_check ()
+      if True == finish_game (screen):
+         return
       next_level (screen)
 
 def do_events (keys):
@@ -821,8 +822,6 @@ def move_gaps ():
    global left_up_gap
    global right_down_gap
    global frame
-   #if frame & 0x3 != 0:
-   #   return
    for i in range (0, len (left_up_gap)):
       x, y, z = left_up_gap[i]
       x = (x - 2) & 0x7ff
@@ -869,23 +868,25 @@ def draw_gaps (screen):
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
       draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
-      #l1, l2, l3 = right_down_gap[i]
-      #xl2 = l2 % 256
-      #xl3 = l3 % 256
-      #print ('gap x2/x3', xl2, xl3)
 
-def create_hazards (num):
+def add_hazard (level):
+   global hazard_list
+   h = hazard_list[level - 1]
+   h.active = True
+
+def create_hazards ():
    global hazard_list
    hazard_list.clear ()
-   if num < 20:
-      for i in range (0, num):
-         # get hazard sprite (random)
-         i = get_index ()
-         # get hazard colour (random)
-         c = get_colour ()
-         p = get_position ()
-         h = hazard_t (i - 1, c, p)
-         hazard_list.append (h)
+   # we create all 20 hazards at once
+   # all are inactive at first
+   for i in range (0, 20):
+      # get hazard sprite (random)
+      i = get_index ()
+      # get hazard colour (random)
+      c = get_colour ()
+      p = get_position ()
+      h = hazard_t (i - 1, c, p)
+      hazard_list.append (h)
 
 def draw_hazards (screen):
    global hazard_list
@@ -893,6 +894,8 @@ def draw_hazards (screen):
    global hazards
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
+      if h.active == False:
+         return
       if h.delay != 0:
          continue
       sprite = hazards[h.index][h.sprite_idx]
@@ -988,7 +991,6 @@ def main ():
    font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
    init_sounds ()
    init_hazards ()
-   #thread = threading.Thread(target=thread_function, args=("1",))
    while True:
       game_loop (screen)
       the_end_loop (screen)

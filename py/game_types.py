@@ -28,6 +28,7 @@ class hazard_t:
       self.pos        = pos
       # entrance delay
       self.delay      = 0
+      self.active     = False
 
 class jack_t:
    def __init__ (self, state, pos, delay):
