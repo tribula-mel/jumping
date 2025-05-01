@@ -9,6 +9,7 @@ class colour_t (Enum):
    yellow  = 0x06
    white   = 0x07
    black   = 0x08
+   bwhite  = 0x09
 
 class sprite_t:
    def __init__ (self, width, height, colour, sprite):

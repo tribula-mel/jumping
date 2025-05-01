@@ -57,6 +57,13 @@ hazard_list = []
 jjack = None
 high_score = 0
 
+# state 0 - regular state, white background
+# state 1 - line crash, bright white background
+# state 2 - hazard collision, magenta background
+# state 3 - transition screens, yellow background
+bg_state = 0
+bg_delay = 0
+
 # linear pseudo random generator in range [1..f]
 def lfsr (inp):
    newbit = (((inp >> 3) ^ (inp >> 2)) & 1)
@@ -142,6 +149,8 @@ def set_colour (colour):
       return (0xd7, 0x00, 0x00)
    elif colour == colour_t.blue.value:
       return (0x00, 0x00, 0xd7)
+   elif colour == colour_t.bwhite.value:
+      return (0xff, 0xff, 0xff)
    else:
       # black
       return (0x00, 0x00, 0x00)
@@ -396,6 +405,7 @@ def draw_jack (screen):
       draw_jack_stars (screen)
    elif jjack.state == 5:
       jjack.timeout += 3 * MAIN_TIMEOUT
+      bg_state_set (1)
       draw_jack_crash (screen)
    elif jjack.state == 6:
       draw_jack_ledge (screen)
@@ -515,6 +525,7 @@ def collision_check ():
       hx, hy = hazard_list[i].pos
       if jy == hy:
          if (jx >= hx and jx <= (hx + 15)) or (hx >= jx and hx <= (jx + 7)):
+            bg_state_set (2)
             # stars state
             snds.squash.play ()
             jjack.state = 4
@@ -526,7 +537,7 @@ def the_end_loop (screen):
    global jjack
    global high_score
    global frame
-   cy = set_colour (colour_t.yellow.value)
+   bg_state_set (3)
    cg = set_colour (colour_t.green.value)
    cw = set_colour (colour_t.white.value)
    cb = set_colour (colour_t.black.value)
@@ -556,7 +567,7 @@ def the_end_loop (screen):
       running = do_events ([pygame.K_ESCAPE, pygame.K_RETURN])
       if (running == False):
          break
-      screen.fill (cy)
+      bg_state_handle (screen)
       pygame.draw.rect(screen, cg, convert_to_pygame ([64, 16, 128, 24]))
       screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (24)))
       pygame.draw.rect(screen, cc, convert_to_pygame ([40, 72, 176, 40]))
@@ -573,6 +584,7 @@ def the_end_loop (screen):
       pygame.display.flip ()
       frame += 1
       clock.tick (35) # limits FPS
+   bg_state_set (0)
 
 def finish_game (screen):
    global jjack
@@ -603,6 +615,7 @@ def ticker ():
    global hazard_list
    global frame
    global jjack
+   global bg_delay
    for i in range (0, len (hazard_list)):
       h = hazard_list[i]
       if h.delay != 0:
@@ -610,6 +623,46 @@ def ticker ():
    frame += 1
    if jjack.timeout != 0:
       jjack.timeout -= 1
+   if bg_delay != 0:
+      bg_delay -= 1
+
+def bg_state_set (state):
+   global bg_state
+   global bg_delay
+   bg_state = state
+   if bg_state == 1:
+      bg_delay = 10
+   elif bg_state == 2:
+      bg_delay = 4
+   else:
+      bg_delay = 0
+
+def bg_state_handle (screen):
+   # default background colour is white
+   global bg_state
+   global bg_delay
+   if bg_state == 0:
+      screen.fill (set_colour (colour_t.white.value))
+   elif bg_state == 1 and bg_delay != 0:
+      screen.fill (set_colour (colour_t.bwhite.value))
+   elif bg_state == 2 and bg_delay != 0:
+      screen.fill (set_colour (colour_t.magenta.value))
+   elif bg_state == 3:
+      screen.fill (set_colour (colour_t.yellow.value))
+   else:
+      screen.fill (set_colour (colour_t.white.value))
+      bg_state = 0
+
+def bg_c_set ():
+   global bg_state
+   if bg_state == 0:
+      return set_colour (colour_t.white.value)
+   elif bg_state == 1:
+      return set_colour (colour_t.bwhite.value)
+   elif bg_state == 2:
+      return set_colour (colour_t.magenta.value)
+   elif bg_state == 3:
+      return set_colour (colour_t.yellow.value)
 
 def game_loop (screen):
    global pause
@@ -621,7 +674,7 @@ def game_loop (screen):
                      pygame.K_p, pygame.K_a,
                      pygame.K_d, pygame.K_w,
                      pygame.K_i]):
-      screen.fill ((0xd7, 0xd7, 0xd7))
+      bg_state_handle (screen)
       draw_line (screen)
       draw_lives (screen)
       move_gaps ()
@@ -686,10 +739,10 @@ def ballad_loop (screen):
    global jjack
    global ballad_list
    global frame
+   bg_state_set (3)
    rd = False
    rd2 = False
    el = False
-   cy = set_colour (colour_t.yellow.value)
    cg = set_colour (colour_t.green.value)
    cw = set_colour (colour_t.white.value)
    cb = set_colour (colour_t.black.value)
@@ -721,7 +774,7 @@ def ballad_loop (screen):
       running = do_events ([pygame.K_ESCAPE])
       if (running == False):
          break
-      screen.fill (cy)
+      bg_state_handle (screen)
       pygame.draw.rect(screen, cg, convert_to_pygame ([64, 16, 128, 24]))
       screen.blit (jj, (x_convert_to_pygame (80), y_convert_to_pygame (24)))
       pygame.draw.rect(screen, cw, convert_to_pygame ([16, 64, 224, 24]))
@@ -754,6 +807,7 @@ def ballad_loop (screen):
       # 9 seconds loop
       if (frame - sf) >= (9 * 35):
          break
+   bg_state_set (0)
 
 def init_gaps ():
    global left_up_gap
@@ -844,30 +898,30 @@ def draw_gaps (screen):
       x, y = gap_pos_to_speccy_x_y (pos_1)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
       x, y = gap_pos_to_speccy_x_y (pos_2)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
       x, y = gap_pos_to_speccy_x_y (pos_3)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
    for i in range (0, len (right_down_gap)):
       pos_1, pos_2, pos_3 = right_down_gap[i]
       # every gap is three speccy characters wide
       x, y = gap_pos_to_speccy_x_y (pos_1)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
       x, y = gap_pos_to_speccy_x_y (pos_2)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
       x, y = gap_pos_to_speccy_x_y (pos_3)
       pygame_x = x_convert_to_pygame (x)
       pygame_y = y_convert_to_pygame (y)
-      draw_element (screen, line_brick, pygame_x, pygame_y, set_colour (0x07))
+      draw_element (screen, line_brick, pygame_x, pygame_y, bg_c_set ())
 
 def add_hazard (level):
    global hazard_list
