@@ -795,9 +795,9 @@ def h_add_gap (gap_list):
    gap_exc_list = []
    for gap in gap_list:
       x, y, z = gap
-      h_l_add_range (gap_exc_list, range ((x- 47)%2048, (x+ 48)%2048))
+      h_l_add_range (gap_exc_list, range ((x- 47)&2047, (x+ 48)%2048))
       h_l_add_range (gap_exc_list, range ((x+209)%2048, (x+304)%2048))
-      h_l_add_range (gap_exc_list, range ((x-303)%2048, (x-208)%2048))
+      h_l_add_range (gap_exc_list, range ((x-303)&2047, (x-208)&2047))
    while True:
       init = random.randint (0, 2023)
       if h_r_in_list (gap_exc_list, init) == False:
