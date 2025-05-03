@@ -680,11 +680,11 @@ def game_loop (screen):
       move_gaps ()
       if frame & 0x1 == 0:
          move_hazards ()
-      draw_gaps (screen)
       draw_hazards (screen)
       draw_score (screen)
       attempt_down_jack ()
       draw_jack (screen)
+      draw_gaps (screen)
       draw_grid (screen)
       pygame.display.flip ()
       ticker ()
@@ -836,22 +836,24 @@ def clear_hazards ():
    global hazard_list
    hazard_list.clear ()
 
-def h_l_add_range (tl, re):
-   tl.append (re)
+def h_l_add_range (tl, center):
+   for i in range (-47, 48):
+      tl.append ((center + i) & 0x7ff)
+   for i in range (209, 304):
+      tl.append ((center + i) & 0x7ff)
+   for i in range (208, 303):
+      tl.append ((center - i) & 0x7ff)
 
 def h_r_in_list (tl, query):
-   for tr in tl:
-      if query in tr:
-         return True
+   if query in tl:
+      return True
    return False
 
 def h_add_gap (gap_list):
    gap_exc_list = []
    for gap in gap_list:
       x, y, z = gap
-      h_l_add_range (gap_exc_list, range ((x- 47)&2047, (x+ 48)%2048))
-      h_l_add_range (gap_exc_list, range ((x+209)%2048, (x+304)%2048))
-      h_l_add_range (gap_exc_list, range ((x-303)&2047, (x-208)&2047))
+      h_l_add_range (gap_exc_list, x)
    while True:
       init = random.randint (0, 2023)
       if h_r_in_list (gap_exc_list, init) == False:
