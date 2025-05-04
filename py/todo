@@ -1,8 +1,5 @@
-[ ] polish the game
-    [x] line crash changes the background colour to bright white (2x)
-    [x] crash with a hazard changes the background to magenta (1x)
-    [x] hazards creation polish
-    [ ] sound polishing
+[x] polish the game
+    [x] sound polishing
 
 [ ] consider
     [ ] separating events and drawing into two threads

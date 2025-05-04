@@ -201,6 +201,13 @@ def draw_lives (screen):
       x = x_convert_to_pygame (8* i)
       draw_element (screen, life, x, y, set_colour (0x03))
 
+def sound_play (channel, sound):
+   channel.queue (sound)
+
+def sound_stop (ch_l):
+   for ch in ch_l:
+      ch.stop ()
+
 def draw_jack_standing (screen):
    global frame
    global jjack
@@ -211,23 +218,22 @@ def draw_jack_standing (screen):
    if (frame & 0x7f) < 32:
       draw_element (screen, jack_ff, x, y, set_colour (0x00))
       if (frame & 0x7f) == 0:
-         snds.ff_head.play ()
+         sound_play (snds.ch0, snds.ff_head)
    elif (frame & 0x7f) < 64:
       draw_element (screen, jack_lf, x, y, set_colour (0x00))
       if (frame & 0x7f) == 32:
-         snds.lr_head.play ()
+         sound_play (snds.ch0, snds.lr_head)
    elif (frame & 0x7f) < 96:
       draw_element (screen, jack_ff, x, y, set_colour (0x00))
       if (frame & 0x7f) == 64:
-         snds.ff_head.play ()
+         sound_play (snds.ch0, snds.ff_head)
    elif (frame & 0x7f) <= 127:
       draw_element (screen, jack_rf, x, y, set_colour (0x00))
       if (frame & 0x7f) == 96:
-         snds.lr_head.play ()
+         sound_play (snds.ch0, snds.lr_head)
 
 def draw_jack_left (screen):
    global jjack
-   global snds
    dnuy = False
    s_x, s_y = jjack.pos
    if (s_x - 8) < 0:
@@ -242,8 +248,6 @@ def draw_jack_left (screen):
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00), dnuy)
-   if jjack.sprite_idx == 0:
-      snds.run.play ()
    jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
@@ -252,7 +256,6 @@ def draw_jack_left (screen):
 
 def draw_jack_right (screen):
    global jjack
-   global snds
    dnuy = False
    s_x, s_y = jjack.pos
    if (s_x + 16) > 255:
@@ -266,8 +269,6 @@ def draw_jack_right (screen):
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00), dnuy)
-   if jjack.sprite_idx == 0:
-      snds.run.play ()
    jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 0
@@ -287,14 +288,11 @@ def jack_ticker ():
 
 def draw_jack_crash (screen):
    global jjack
-   global snds
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 8)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   if jjack.sprite_idx == 0:
-      snds.line_crash.play ()
    jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
       jjack.state = 4
@@ -304,14 +302,11 @@ def draw_jack_crash (screen):
 
 def draw_jack_stars (screen):
    global jjack
-   global snds
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   if jjack.sprite_idx == 0:
-      snds.stars.play ()
    jjack.sprite_idx += 1
    if jjack.timeout != 0:
       if jjack.sprite_idx >= len (jack_se[jjack.state]):
@@ -323,14 +318,11 @@ def draw_jack_stars (screen):
 
 def draw_jack_jump (screen):
    global jjack
-   global snds
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y - 8)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   if jjack.sprite_idx == 0:
-      snds.jump_thro.play ()
    if jjack.delay == 0:
       jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
@@ -359,14 +351,11 @@ def draw_jack_through (screen):
 
 def draw_jack_ledge (screen):
    global jjack
-   global snds
    s_x, s_y = jjack.pos
    x = x_convert_to_pygame (s_x)
    y = y_convert_to_pygame (s_y)
    sprite = jack_se[jjack.state][jjack.sprite_idx]
    draw_element (screen, sprite, x, y, set_colour (0x00))
-   if jjack.sprite_idx == 0:
-      snds.fall_thro.play ()
    if jjack.delay == 0:
       jjack.sprite_idx += 1
    if jjack.sprite_idx >= len (jack_se[jjack.state]):
@@ -393,21 +382,30 @@ def draw_jack_fall (screen):
 
 def draw_jack (screen):
    global jjack
+   global snds
    if jjack.state == 0:
+      sound_stop ([snds.ch1, snds.ch2, snds.ch3])
       draw_jack_standing (screen)
    elif jjack.state == 1 or jjack.state == 9:
+      sound_play (snds.ch1, snds.run)
       draw_jack_left (screen)
    elif jjack.state == 2 or jjack.state == 10:
+      sound_play (snds.ch1, snds.run)
       draw_jack_right (screen)
    elif jjack.state == 3:
+      sound_play (snds.ch2, snds.jump_thro)
       draw_jack_jump (screen)
    elif jjack.state == 4:
+      sound_stop ([snds.ch2])
+      sound_play (snds.ch3, snds.stars)
       draw_jack_stars (screen)
    elif jjack.state == 5:
+      sound_play (snds.ch3, snds.line_crash)
       jjack.timeout += 3 * MAIN_TIMEOUT
       bg_state_set (1)
       draw_jack_crash (screen)
    elif jjack.state == 6:
+      sound_play (snds.ch2, snds.fall_thro)
       draw_jack_ledge (screen)
    elif jjack.state == 7:
       draw_jack_through (screen)
@@ -516,6 +514,9 @@ def collision_check ():
    hl = len (hazard_list)
    if hl == 0:
       return
+   # if jack is in a fall skip the check
+   if jjack.state == 6:
+      return
    jx, jy = jjack.pos
    for i in range (0, hl):
       if hazard_list[i].active == False:
@@ -527,7 +528,7 @@ def collision_check ():
          if (jx >= hx and jx <= (hx + 15)) or (hx >= jx and hx <= (jx + 7)):
             bg_state_set (2)
             # stars state
-            snds.squash.play ()
+            sound_play (snds.ch3, snds.squash)
             jjack.state = 4
             jjack.timeout += MAIN_TIMEOUT
             return
@@ -588,8 +589,10 @@ def the_end_loop (screen):
 
 def finish_game (screen):
    global jjack
+   global snds
    if jjack.lives == 0:
-      snds.game_end.play ()
+      sound_stop ([snds.ch2, snds.ch3])
+      sound_play (snds.ch4, snds.game_end)
       time.sleep (2)
       clear_gaps ()
       #clear_hazards ()
@@ -599,8 +602,10 @@ def finish_game (screen):
 
 def next_level (screen):
    global jjack
+   global snds
    if jjack.next == True:
-      snds.new_level.play ()
+      sound_stop ([snds.ch2])
+      sound_play (snds.ch4, snds.new_level)
       jjack.next = False
       jjack.level += 1
       jjack.state = 0
@@ -1019,6 +1024,11 @@ def init_sounds ():
    snds.run = pygame.mixer.Sound ('run.ogg')
    snds.squash = pygame.mixer.Sound ('squash.ogg')
    snds.stars = pygame.mixer.Sound ('stars.ogg')
+   snds.ch0 = pygame.mixer.Channel (0)
+   snds.ch1 = pygame.mixer.Channel (1)
+   snds.ch2 = pygame.mixer.Channel (2)
+   snds.ch3 = pygame.mixer.Channel (3)
+   snds.ch4 = pygame.mixer.Channel (4)
 
 def main ():
    global clock

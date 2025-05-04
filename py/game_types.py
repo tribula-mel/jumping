@@ -64,3 +64,13 @@ class sounds_t:
       self.run = None
       self.squash = None
       self.stars = None
+      # standing
+      self.ch0 = None
+      # running
+      self.ch1 = None
+      # fall, jump
+      self.ch2 = None
+      # crash, squash, stars
+      self.ch3 = None
+      # game over, next level
+      self.ch4 = None
