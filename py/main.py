@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
+import os
 import pygame
 import random
+import sys
 import time
 
 from game_types import colour_t
@@ -705,11 +707,11 @@ def do_events (keys):
    global grid
    for event in pygame.event.get ():
       if event.type == pygame.QUIT:
-         exit ()
+         sys.exit ()
       elif event.type == pygame.KEYDOWN:
          if event.key in keys:
             if event.key == pygame.K_ESCAPE:
-               exit ()
+               sys.exit ()
             if event.key == pygame.K_p:
                if pause == False:
                   pause = True
@@ -1014,21 +1016,29 @@ def draw_score (screen):
 def init_sounds ():
    global snds
    snds = sounds_t ()
-   snds.fall_thro = pygame.mixer.Sound ('fall_thro.ogg')
-   snds.ff_head = pygame.mixer.Sound ('ff_head.ogg')
-   snds.game_end = pygame.mixer.Sound ('game_end.ogg')
-   snds.jump_thro = pygame.mixer.Sound ('jump_thro.ogg')
-   snds.line_crash = pygame.mixer.Sound ('line_crash.ogg')
-   snds.lr_head = pygame.mixer.Sound ('lr_head.ogg')
-   snds.new_level = pygame.mixer.Sound ('new_level.ogg')
-   snds.run = pygame.mixer.Sound ('run.ogg')
-   snds.squash = pygame.mixer.Sound ('squash.ogg')
-   snds.stars = pygame.mixer.Sound ('stars.ogg')
+   snds.fall_thro = pygame.mixer.Sound (resource_path ('assets/fall_thro.ogg'))
+   snds.ff_head = pygame.mixer.Sound (resource_path ('assets/ff_head.ogg'))
+   snds.game_end = pygame.mixer.Sound (resource_path ('assets/game_end.ogg'))
+   snds.jump_thro = pygame.mixer.Sound (resource_path ('assets/jump_thro.ogg'))
+   snds.line_crash = pygame.mixer.Sound (resource_path ('assets/line_crash.ogg'))
+   snds.lr_head = pygame.mixer.Sound (resource_path ('assets/lr_head.ogg'))
+   snds.new_level = pygame.mixer.Sound (resource_path ('assets/new_level.ogg'))
+   snds.run = pygame.mixer.Sound (resource_path ('assets/run.ogg'))
+   snds.squash = pygame.mixer.Sound (resource_path ('assets/squash.ogg'))
+   snds.stars = pygame.mixer.Sound (resource_path ('assets/stars.ogg'))
    snds.ch0 = pygame.mixer.Channel (0)
    snds.ch1 = pygame.mixer.Channel (1)
    snds.ch2 = pygame.mixer.Channel (2)
    snds.ch3 = pygame.mixer.Channel (3)
    snds.ch4 = pygame.mixer.Channel (4)
+
+def resource_path (relative_path):
+    # Get the absolute path to the resource. Works for dev and for PyInstaller
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temp folder
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 def main ():
    global clock
@@ -1054,7 +1064,7 @@ def main ():
    screen = pygame.display.set_mode ((x_res * scale, y_res * scale))
    pygame.display.set_caption("Jumping Jack")
    clock = pygame.time.Clock ()
-   font = pygame.font.Font ('ZxSpectrum7-nROZ0.ttf', 10 * scale)
+   font = pygame.font.Font (resource_path ('assets/ZxSpectrum7-nROZ0.ttf'), 10 * scale)
    init_sounds ()
    init_hazards ()
    while True:
