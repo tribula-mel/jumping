@@ -24,7 +24,7 @@ screenshots.
 ![The opening screen](screenshots/jj_0.png)
 ![Next level](screenshots/jj_1.png)
 ![Two hazards](screenshots/jj_2.png)
-![Game over with a new high score](screenshots/jj_2.png)
+![Game over with a new high score](screenshots/jj_3.png)
 
 ## Windows steps
 
